@@ -1,0 +1,30 @@
+{
+  "database": {
+    "url": "localhost",
+    "user": "root",
+    "password": "",
+    "port": "27017",
+    "collection": "patchllc_db"
+  },
+  "server": {
+    "siteURL": "localhost",
+    "clientURL": "http://localhost:3000",
+    "name": "NFT Marketplace Backend API",
+    "signingKey": "NFTMarketplaceBackendAPI",
+    "secret": "nftIIBlogYYChainXXMarketXXPlaceXX",
+    "port": 3000,
+    "sessionDurationSeconds": 604800,
+    "signupWhiteList": [],
+    "ssh": {
+      "enabled": false,
+      "user": "root",
+      "password": ""
+    },
+    "recovery": {
+      "enabled": true,
+      "clientURL": "http://localhost",
+      "saltRounds": 5
+    }
+  },
+  "preferences": {}
+}

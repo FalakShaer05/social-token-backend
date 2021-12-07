@@ -1,0 +1,43 @@
+{
+  "name": "nft-marketplace-backend",
+  "version": "1.0.0",
+  "description": "This is a backend server for the restful API's of NFT Marketplace",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://shehryar.nadeem.iqbal2@gitlab.com/shehryar.nadeem.iqbal2/nft-marketplace-backend.git"
+  },
+  "keywords": [
+    "NFT",
+    "Marketplace",
+    "RestAPI's"
+  ],
+  "author": "Shehryar Nadeem Iqbal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/shehryar.nadeem.iqbal2/nft-marketplace-backend/issues"
+  },
+  "homepage": "https://gitlab.com/shehryar.nadeem.iqbal2/nft-marketplace-backend#readme",
+  "dependencies": {
+    "api-spec-transformer": "^0.2.6",
+    "bcrypt-nodejs": "0.0.3",
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^4.6.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "moment": "^2.29.1",
+    "mongoose": "^6.0.14",
+    "morgan": "^1.10.0",
+    "passport": "^0.5.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "swagger-ui-express": "^4.2.0",
+    "tunnel-ssh": "^4.1.6",
+    "yamljs": "^0.3.0"
+  }
+}
