@@ -1,6 +1,7 @@
 const router = require(`express`).Router();
 const _auth = require(`../auth`);
 const users = require(`../controllers/Users`);
+const NFTToken = require(`../controllers/NFTToken`);
 const RequestsModel = require('../controllers/models/RequestRecord')
 
 module.exports = function RouterPublic(database, settings) {
@@ -33,6 +34,8 @@ module.exports = function RouterPublic(database, settings) {
     });
 
     router.route(`/signup`).post(users.AddUser);
+    router.route(`/token/:tokenID`).get(NFTToken.GetToken);
+    router.route(`/arts/:artID`).get(NFTToken.GetArt);
 
     return router;
 };
