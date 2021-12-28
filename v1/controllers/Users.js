@@ -39,18 +39,26 @@ controller.AddUser = async function (req, res) {
   }
 
   if ((await validateUserName(user.username)) === false) {
-    return res.status(500).json({ error: `That username already exists` });
+    return res.status(400).json({ error: `That username already exists` });
   }
 
   const model = new UsersModel(user);
   const promise = model.save();
 
-  promise
-    .then((user) => {
-      res.json(user);
-    })
-    .catch((ex) => {
-      res.status(500).json(ex);
+  promise.then((user) => {
+      let resp = {
+        success: true,
+        message: 'user created successfully',
+        data: user
+      }
+      res.json(resp);
+    }).catch((ex) => {
+      let resp = {
+        success: false,
+        message: 'Something went wrong. Please try again later',
+        data: ex
+      }
+      res.status(400).json(resp);
     });
 };
 
