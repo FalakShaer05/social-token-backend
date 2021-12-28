@@ -138,7 +138,7 @@ function startServer(db, dbConnectString) {
 }
 
 function startDB(config, next) {
-    mongoose.connect(connectString, {
+    mongoose.connect(config.connectionString, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
