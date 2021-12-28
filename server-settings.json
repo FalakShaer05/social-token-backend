@@ -1,10 +1,6 @@
 {
   "database": {
-    "url": "localhost",
-    "user": "root",
-    "password": "",
-    "port": "27017",
-    "collection": "patchllc_db"
+    "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase",
   },
   "server": {
     "siteURL": "localhost",

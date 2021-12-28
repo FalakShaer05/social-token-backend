@@ -138,7 +138,6 @@ function startServer(db, dbConnectString) {
 }
 
 function startDB(config, next) {
-    const connectString = `mongodb://localhost:27017/NFTMarketplaceDatabase?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false`;
     mongoose.connect(connectString, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -154,7 +153,7 @@ function startDB(config, next) {
 
     db.once(`open`, () => {
         console.log(`Connected to database.....`);
-        next(db, connectString);
+        next(db, config.connectionString);
     });
 }
 
@@ -191,7 +190,7 @@ if (settings.server.ssh.enabled) {
     });
 } else {
     startDB(
-        {db: {url: settings.database.url, port: settings.database.port}},
+        {db: {connectionString: settings.database.connectionString}},
         startServer
     );
 }
