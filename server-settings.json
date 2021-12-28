@@ -1,6 +1,6 @@
 {
   "database": {
-    "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase",
+    "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase"
   },
   "server": {
     "siteURL": "localhost",
