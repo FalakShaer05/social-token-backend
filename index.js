@@ -138,7 +138,7 @@ function startServer(db, dbConnectString) {
 }
 
 function startDB(config, next) {
-    mongoose.connect(config.connectionString, {
+    mongoose.connect(config.db.connectionString, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
@@ -153,7 +153,7 @@ function startDB(config, next) {
 
     db.once(`open`, () => {
         console.log(`Connected to database.....`);
-        next(db, config.connectionString);
+        next(db, config.db.connectionString);
     });
 }
 
@@ -189,6 +189,7 @@ if (settings.server.ssh.enabled) {
         return finish([password]);
     });
 } else {
+    console.log(settings.database.connectionString);
     startDB(
         {db: {connectionString: settings.database.connectionString}},
         startServer
