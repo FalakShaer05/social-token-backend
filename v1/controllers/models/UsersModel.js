@@ -43,5 +43,4 @@ Users.pre("updateOne", function () {
   }
 });
 
-// const Usermodel = mongoose.model(`Users`, Users);
 module.exports = Usermodel;
