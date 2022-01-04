@@ -4,7 +4,7 @@
   "description": "This is a backend server for the restful API's of NFT Marketplace",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon index.js",
+    "watch": "nodemon index.js",
     "start": "node index.js"
   },
   "repository": {

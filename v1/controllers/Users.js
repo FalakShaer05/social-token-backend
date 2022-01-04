@@ -7,7 +7,7 @@ const validateUserName = async function (name) {
   let result = false;
   const p = UsersModel.findOne({ username: name }).exec();
 
-  await p.then((user) => {
+  await p.then(user => {
     if (user === null) {
       result = true;
     }
@@ -17,13 +17,6 @@ const validateUserName = async function (name) {
 };
 
 controller.AddUser = async function (req, res) {
-  if (!req.body.phoneNo || req.body.phoneNo.length !== 10) {
-    return res.status(500).send({
-      status: "error",
-      error: "Phone number should 10 characters",
-    });
-  }
-
   const user = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -31,7 +24,7 @@ controller.AddUser = async function (req, res) {
     username: req.body.username,
     password: req.body.password,
     countryCode: req.body.countryCode,
-    phoneNo: req.body.phoneNo,
+    phoneNo: req.body.phoneNo
   };
 
   if (typeof user.username !== `undefined`) {
@@ -45,19 +38,21 @@ controller.AddUser = async function (req, res) {
   const model = new UsersModel(user);
   const promise = model.save();
 
-  promise.then((user) => {
+  promise
+    .then(user => {
       let resp = {
         success: true,
-        message: 'user created successfully',
+        message: "user created successfully",
         data: user
-      }
+      };
       res.json(resp);
-    }).catch((ex) => {
+    })
+    .catch(ex => {
       let resp = {
         success: false,
-        message: 'Something went wrong. Please try again later',
+        message: "Something went wrong. Please try again later",
         data: ex
-      }
+      };
       res.status(400).json(resp);
     });
 };
@@ -72,14 +67,24 @@ controller.GetUsersList = function (req, res) {
   });
 };
 
+controller.GetTraders = function (req, res) {
+  UsersModel.find({ is_wallet_connected: true, roles: "trader" }, (err, users) => {
+    if (err) {
+      return res.status(500).json(err);
+    } else {
+      return res.status(200).json(users);
+    }
+  });
+};
+
 controller.GetUserByID = function (req, res) {
   const query = UsersModel.findById(req.params.id);
   const promise = query.exec();
   promise
-    .then((user) => {
+    .then(user => {
       res.json(user);
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json(ex);
     });
 };
@@ -88,12 +93,12 @@ controller.UpdateUser = async function (req, res) {
   if (!req.body.phoneNo || req.body.phoneNo.length != 10) {
     return res.status(500).send({
       status: "error",
-      error: "Phone number should 10 characters",
+      error: "Phone number should 10 characters"
     });
   }
 
   UsersModel.findById(req.params.id)
-    .then(async (user) => {
+    .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
       }
@@ -110,10 +115,10 @@ controller.UpdateUser = async function (req, res) {
 
       return await user.save();
     })
-    .then((user) => {
+    .then(user => {
       res.status(200).json(user);
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json(ex);
     });
 };
@@ -123,7 +128,7 @@ controller.DeleteUser = function (req, res) {
   let name;
 
   query
-    .then((user) => {
+    .then(user => {
       if (user !== null) {
         name = user.username;
         return user.deleteOne();
@@ -133,21 +138,36 @@ controller.DeleteUser = function (req, res) {
     .then(() => {
       res.status(200).json({ message: `User ${name} removed` });
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json(ex);
     });
 };
 
+controller.connectWallet = async (req, res) => {
+  try {
+    if (!req.params.wallet_token) {
+      throw "Wallet token not found in request.";
+    }
+    const user = await UsersModel.findById(req.params.id);
+    user.is_wallet_connected = true;
+    user.wallet_auth_token = req.params.wallet_token;
+    await user.save();
+    return res.status(200).json({ status: "success", data: user });
+  } catch (ex) {
+    return res.status(500).json({ status: "error", error: ex });
+  }
+};
+
 controller.GetUsersAfterDate = function (req, res) {
   const promise = UsersModel.find({
-    updated: { $gte: moment.unix(req.params.time) },
+    updated: { $gte: moment.unix(req.params.time) }
   }).exec();
 
   promise
-    .then((users) => {
+    .then(users => {
       res.json(users);
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json(ex);
     });
 };
