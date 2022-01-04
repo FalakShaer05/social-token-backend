@@ -34,5 +34,12 @@ Users.pre(`save`, function (callback) {
     })
 })
 
+Users.pre('updateOne', function () {
+
+    if (this.isModified(`password`)){
+
+    }
+});
+
 const Usermodel = mongoose.model(`Users`, Users)
 module.exports = Usermodel
