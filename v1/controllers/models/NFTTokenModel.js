@@ -6,7 +6,8 @@ const {Schema} = mongoose
 const NFTToken = Schema({
     name: {type: String, required: false},
     description: {type: String, required: false},
-    image: {type: String, required: true, unique: true},
+    media_url: {type: String, required: true, unique: true},
+    external_link: {type: String, required: true, unique: true},
     created: {type: Date, default: Date.now},
     updated: {type: Date, default: Date.now},
 })

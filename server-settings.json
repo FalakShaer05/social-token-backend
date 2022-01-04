@@ -22,5 +22,11 @@
       "saltRounds": 5
     }
   },
-  "preferences": {}
+  "preferences": {},
+  "emailPreferences": {
+    "emailAddress": "dust012012@gmail.com",
+    "emailPassword": "rqhpshuricssjjan",
+    "sender": "dust012012@gmail.com"
+
+  }
 }

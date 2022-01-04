@@ -38,3 +38,10 @@ Users.pre(`save`, function (callback) {
 
 const Usermodel = mongoose.model(`Users`, Users);
 module.exports = Usermodel;
+Users.pre("updateOne", function () {
+  if (this.isModified(`password`)) {
+  }
+});
+
+// const Usermodel = mongoose.model(`Users`, Users);
+module.exports = Usermodel;
