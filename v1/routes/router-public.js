@@ -2,7 +2,6 @@ const router = require(`express`).Router();
 const _auth = require(`../auth`);
 const users = require(`../controllers/Users`);
 const NFTToken = require(`../controllers/NFTToken`);
-const RequestsModel = require("../controllers/models/RequestRecord");
 
 module.exports = function RouterPublic(database, settings) {
   const db = database;

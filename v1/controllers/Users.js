@@ -91,13 +91,6 @@ controller.GetUserByID = function (req, res) {
 };
 
 controller.UpdateUser = async function (req, res) {
-  if (!req.body.phoneNo || req.body.phoneNo.length != 10) {
-    return res.status(500).send({
-      status: "error",
-      error: "Phone number should 10 characters"
-    });
-  }
-
   UsersModel.findById(req.params.id)
     .then(async user => {
       if (user === null) {
@@ -109,9 +102,6 @@ controller.UpdateUser = async function (req, res) {
       user.password = req.body.password || user.password;
       user.email = req.body.email || user.email;
       user.picture = req.body.picture || user.picture;
-      user.is_deleted = req.body.is_deleted || user.is_deleted;
-      user.status = req.body.status || user.status;
-      user.roles = req.body.roles || user.roles;
       user.phoneNo = req.body.phoneNo || user.phoneNo;
 
       return await user.save();
@@ -212,8 +202,9 @@ controller.ForgetPassword = async function (req, res) {
     res.status(500).json({ success: false, message: "something went wrong please try again later" });
   } else {
     let randomPassword = await common.generateRandomPassword(15);
+    let code = await common.generateCode(6);
     let subject = "reset password";
-    let message = "You random password to login is" + randomPassword;
+    let message = `You random password to login is ${randomPassword} and your 6 digit code is ${code}`;
 
     const resp = await UsersModel.updateOne({ email: email }, { password: randomPassword }).exec();
     if (resp) {
