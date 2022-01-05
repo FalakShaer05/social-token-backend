@@ -1,5 +1,6 @@
 const moment = require(`moment`);
 const UsersModel = require(`./models/UsersModel`);
+const ForgetPasswordModel = require("./models/ForgottenPasswordModel");
 const settings = require(`../../server-settings`);
 const mailer = require("../helpers/mailer");
 const bcrypt = require(`bcrypt-nodejs`);
@@ -114,6 +115,42 @@ controller.UpdateUser = async function (req, res) {
     });
 };
 
+controller.ActivateUser = async function (req, res) {
+  UsersModel.findById(req.params.id)
+    .then(async user => {
+      if (user === null) {
+        throw `User not found with that ID`;
+      }
+      user.status = "Active";
+
+      return await user.save();
+    })
+    .then(user => {
+      res.status(200).json(user);
+    })
+    .catch(ex => {
+      res.status(500).json(ex);
+    });
+};
+
+controller.DeactivateUser = async function (req, res) {
+  UsersModel.findById(req.params.id)
+    .then(async user => {
+      if (user === null) {
+        throw `User not found with that ID`;
+      }
+      user.status = "Inactive";
+
+      return await user.save();
+    })
+    .then(user => {
+      res.status(200).json(user);
+    })
+    .catch(ex => {
+      res.status(500).json(ex);
+    });
+};
+
 controller.DeleteUser = function (req, res) {
   const query = UsersModel.findById(req.params.id).exec();
   let name;
@@ -210,11 +247,25 @@ controller.ForgetPassword = async function (req, res) {
     if (resp) {
       let is_sent = await mailer.sendMail(user.email, subject, message);
       if (is_sent) {
+        const fpass = new ForgetPasswordModel();
+        fpass.user = user._id;
+        fpass.code = code;
+        await fpass.save();
         res.status(200).json({ success: true, message: "random password has been sent to your registred email" });
       } else {
         res.status(500).json({ success: false, message: "Something went wrong. Please try again later" });
       }
     }
+  }
+};
+
+controller.ForgetPasswordVerify = async function (req, res) {
+  try {
+    const code = req.body.code;
+    const forgetpass = await ForgetPasswordModel.findOneAndDelete({ code: code });
+    return res.status(200).json({ success: true, data: "Verified" });
+  } catch (ex) {
+    return res.status(502).json({ success: false, message: ex.message });
   }
 };
 

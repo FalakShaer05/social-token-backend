@@ -1,6 +1,6 @@
 {
   "database": {
-    "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase"
+    "connectionString": "mongodb://maverick:maverick@localhost:27017/NFTMarketplaceDatabase?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
   },
   "server": {
     "siteURL": "localhost",
@@ -27,6 +27,5 @@
     "emailAddress": "dust012012@gmail.com",
     "emailPassword": "rqhpshuricssjjan",
     "sender": "dust012012@gmail.com"
-
   }
 }

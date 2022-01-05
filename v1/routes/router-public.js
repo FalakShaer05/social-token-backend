@@ -17,6 +17,7 @@ module.exports = function RouterPublic(database, settings) {
 
   router.route(`/signup`).post(users.AddUser);
   router.route(`/forget-password`).post(users.ForgetPassword);
+  router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
   router.route(`/token/:tokenID`).get(NFTToken.GetToken);
   router.route(`/arts/:artID`).get(NFTToken.GetArt);
 
