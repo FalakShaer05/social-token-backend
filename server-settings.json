@@ -1,6 +1,6 @@
 {
   "database": {
-    "connectionString": "mongodb://maverick:maverick@localhost:27017/NFTMarketplaceDatabase?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+    "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase"
   },
   "server": {
     "siteURL": "localhost",
