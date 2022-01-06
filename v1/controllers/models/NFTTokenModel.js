@@ -1,16 +1,16 @@
-const mongoose = require(`mongoose`)
+const mongoose = require(`mongoose`);
 
-mongoose.Promise = global.Promise
-const {Schema} = mongoose
+mongoose.Promise = global.Promise;
+const { Schema } = mongoose;
 
 const NFTToken = Schema({
-    name: {type: String, required: false},
-    description: {type: String, required: false},
-    media_url: {type: String, required: true, unique: true},
-    external_link: {type: String, required: true, unique: true},
-    created: {type: Date, default: Date.now},
-    updated: {type: Date, default: Date.now},
-})
+  name: { type: String, required: false },
+  description: { type: String, required: false },
+  image: { type: String, required: true, unique: false },
+  created: { type: Date, default: Date.now },
+  updated: { type: Date, default: Date.now },
+  user: { type: mongoose.Types.ObjectId, required: true, ref: "Users" }
+});
 
-const NFTTokenModel = mongoose.model(`NFTToken`, NFTToken)
-module.exports = NFTTokenModel
+const NFTTokenModel = mongoose.model(`NFTToken`, NFTToken);
+module.exports = NFTTokenModel;

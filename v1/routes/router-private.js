@@ -12,7 +12,7 @@ const uploaderSettings = upload.fields([
 module.exports = function RouterPrivate(database, settings) {
   router.use(authentication.authenticate);
 
-  router.post("/token", upload.single("img"), NFTToken.createToken);
+  router.route("/token").post(upload.single("img"), NFTToken.createToken).get(NFTToken.GetUserNFTTokens);
   router.post("/createcollection", uploaderSettings, Collections.createCollection);
   router.put("/updatecollection/:id", uploaderSettings, Collections.updateCollection);
   router.put("/connect/:id/wallet/:wallet_token", User.connectWallet);
