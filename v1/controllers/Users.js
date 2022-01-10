@@ -5,6 +5,7 @@ const settings = require(`../../server-settings`);
 const mailer = require("../helpers/mailer");
 const bcrypt = require(`bcrypt-nodejs`);
 const common = require("./Common");
+const jwt = require(`jsonwebtoken`);
 
 const controller = {};
 const validateUserName = async function (name) {
@@ -39,21 +40,21 @@ controller.AddUser = async function (req, res) {
 
   const model = new UsersModel(user);
   const promise = model.save();
-
+  const token = jwt.sign({ sub: model._id }, settings.server.secret, {
+    algorithm: "HS512"
+  });
   promise
     .then(user => {
       let resp = {
-        success: true,
-        message: "user created successfully",
-        data: user
+        status: "success",
+        data: { user: user, token: token }
       };
       res.json(resp);
     })
     .catch(ex => {
       let resp = {
-        success: false,
-        message: "Something went wrong. Please try again later",
-        data: ex
+        status: "error",
+        message: ex.message
       };
       res.status(400).json(resp);
     });
@@ -79,20 +80,20 @@ controller.GetTraders = function (req, res) {
   });
 };
 
-controller.GetUserByID = function (req, res) {
-  const query = UsersModel.findById(req.params.id);
+controller.GetUserProfile = function (req, res) {
+  const query = UsersModel.findById(req.user._id);
   const promise = query.exec();
   promise
     .then(user => {
-      res.json({ success: true, message: "user listed successfully", data: user });
+      res.json({ status: "success", data: { user: user } });
     })
     .catch(ex => {
-      res.status(400).json({ success: false, message: "Something went wrong. Please try again later" });
+      res.status(400).json({ status: "error", error: ex.message });
     });
 };
 
 controller.UpdateUser = async function (req, res) {
-  UsersModel.findById(req.params.id)
+  UsersModel.findById(req.user._id)
     .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
