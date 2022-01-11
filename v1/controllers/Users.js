@@ -81,7 +81,7 @@ controller.GetTraders = function (req, res) {
 };
 
 controller.GetUserProfile = function (req, res) {
-  const query = UsersModel.findById(req.user._id);
+  const query = UsersModel.findById(req.params.id);
   const promise = query.exec();
   promise
     .then(user => {
@@ -93,7 +93,7 @@ controller.GetUserProfile = function (req, res) {
 };
 
 controller.UpdateUser = async function (req, res) {
-  UsersModel.findById(req.user._id)
+  UsersModel.findById(req.params.id)
     .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;

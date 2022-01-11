@@ -18,7 +18,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.get("/collections/:id", Collections.GetCollectionsByUser);
   router.put("/connect/:id/wallet/:wallet_token", User.connectWallet);
   router.route("/traders").get(User.GetTraders);
-  router.route("/user").get(User.GetUserProfile).put(User.UpdateUser);
+  router.route("/user/:id").get(User.GetUserProfile).put(User.UpdateUser);
   router.put("/activateuser/:id", User.ActivateUser);
   router.put("/deactivateuser/:id", User.DeactivateUser);
 

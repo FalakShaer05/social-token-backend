@@ -68,7 +68,8 @@ controller.createCollection = async function (req, res) {
     let data = {
       name: req.body.collection_name,
       thumbnail_image: req.files["thumbnail_image"][0].path,
-      timeline_image: req.files["timeline_image"][0].path
+      timeline_image: req.files["timeline_image"][0].path,
+      user: req.user._id
     };
     const model = new CollectionModel(data);
     await model.save();
