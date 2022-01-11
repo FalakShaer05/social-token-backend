@@ -107,4 +107,20 @@ controller.updateCollection = async function (req, res) {
   }
 };
 
+controller.GetCollectionsByUser = async function (req, res) {
+  try {
+    let collections = await CollectionModel.find({ user: req.params.id });
+
+    return res.status(200).json({
+      status: "success",
+      data: collections
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      status: "error",
+      error: ex.message
+    });
+  }
+};
+
 module.exports = controller;
