@@ -46,14 +46,14 @@ controller.AddUser = async function (req, res) {
   promise
     .then(user => {
       let resp = {
-        status: "success",
+        success: true,
         data: { user: user, token: token }
       };
       res.json(resp);
     })
     .catch(ex => {
       let resp = {
-        status: "error",
+        success: false,
         message: ex.message
       };
       res.status(400).json(resp);
@@ -85,10 +85,10 @@ controller.GetUserProfile = function (req, res) {
   const promise = query.exec();
   promise
     .then(user => {
-      res.json({ status: "success", data: { user: user } });
+      res.json({ success: true, data: { user: user } });
     })
     .catch(ex => {
-      res.status(400).json({ status: "error", error: ex.message });
+      res.status(400).json({ success: false, error: ex.message });
     });
 };
 
@@ -181,9 +181,9 @@ controller.connectWallet = async (req, res) => {
     user.is_wallet_connected = true;
     user.wallet_auth_token = req.params.wallet_token;
     await user.save();
-    return res.status(200).json({ status: "success", data: user });
+    return res.status(200).json({ success: true, data: user });
   } catch (ex) {
-    return res.status(500).json({ status: "error", error: ex });
+    return res.status(500).json({ success: false, error: ex.message });
   }
 };
 
@@ -201,7 +201,7 @@ controller.GetUsersAfterDate = function (req, res) {
     });
   if (!req.body.phoneNo || req.body.phoneNo.length != 10) {
     return res.status(400).send({
-      status: "error",
+      success: false,
       error: "Phone number should 10 characters"
     });
   }

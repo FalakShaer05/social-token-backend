@@ -10,7 +10,7 @@ controller.GetToken = async function (req, res) {
   try {
     if (!tokenID) {
       return res.status(400).send({
-        status: "error",
+        success: false,
         error: "Token id is a required parameter"
       });
     }
@@ -18,7 +18,7 @@ controller.GetToken = async function (req, res) {
     const token = await NFTTokenModel.findOne({ tokenId: tokenID });
     if (token) {
       return res.status(200).send({
-        status: "sucess",
+        success: true,
         message: "Token retrieved successfully",
         data: token
       });
@@ -26,7 +26,7 @@ controller.GetToken = async function (req, res) {
   } catch (ex) {
     console.log(ex);
     return res.status(500).send({
-      status: "error",
+      success: false,
       error: "server internal error",
       message: ex
     });
@@ -38,7 +38,7 @@ controller.GetArt = async function (req, res) {
   try {
     if (!artID) {
       return res.status(400).send({
-        status: "error",
+        success: false,
         error: "Art id is a required parameter"
       });
     }
@@ -56,7 +56,7 @@ controller.GetArt = async function (req, res) {
   } catch (ex) {
     console.log(ex);
     return res.status(500).send({
-      status: "error",
+      success: false,
       error: "server internal error",
       message: ex
     });
@@ -74,13 +74,13 @@ controller.createCollection = async function (req, res) {
     const model = new CollectionModel(data);
     await model.save();
     return res.status(200).json({
-      status: "sucess",
+      success: true,
       message: "Collection saved successfully",
       data: model
     });
   } catch (ex) {
     return res.status(502).json({
-      status: "error",
+      success: false,
       error: ex.message
     });
   }
@@ -96,13 +96,13 @@ controller.updateCollection = async function (req, res) {
     const model = await CollectionModel.findByIdAndUpdate(req.params.id, data, { new: true });
 
     return res.status(200).json({
-      status: "sucess",
+      success: true,
       message: "Collection saved successfully",
       data: model
     });
   } catch (ex) {
     return res.status(502).json({
-      status: "error",
+      success: false,
       error: ex.message
     });
   }
@@ -113,12 +113,12 @@ controller.GetCollectionsByUser = async function (req, res) {
     let collections = await CollectionModel.find({ user: req.params.id });
 
     return res.status(200).json({
-      status: "success",
+      success: true,
       data: collections
     });
   } catch (ex) {
     return res.status(502).json({
-      status: "error",
+      success: false,
       error: ex.message
     });
   }

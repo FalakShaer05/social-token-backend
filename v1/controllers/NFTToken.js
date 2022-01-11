@@ -10,7 +10,7 @@ controller.GetToken = async function (req, res) {
   try {
     if (!tokenID) {
       return res.status(400).send({
-        status: "error",
+        success: false,
         error: "Token id is a required parameter"
       });
     }
@@ -18,7 +18,7 @@ controller.GetToken = async function (req, res) {
     const token = await NFTTokenModel.findOne({ tokenId: tokenID });
     if (token) {
       return res.status(200).send({
-        status: "sucess",
+        success: false,
         message: "Token retrieved successfully",
         data: token
       });
@@ -26,7 +26,7 @@ controller.GetToken = async function (req, res) {
   } catch (ex) {
     console.log(ex);
     return res.status(500).send({
-      status: "error",
+      success: false,
       error: "server internal error",
       message: ex
     });
@@ -38,7 +38,7 @@ controller.GetArt = async function (req, res) {
   try {
     if (!artID) {
       return res.status(400).send({
-        status: "error",
+        success: false,
         error: "Art id is a required parameter"
       });
     }
@@ -56,7 +56,7 @@ controller.GetArt = async function (req, res) {
   } catch (ex) {
     console.log(ex);
     return res.status(500).send({
-      status: "error",
+      success: false,
       error: "server internal error",
       message: ex
     });
@@ -68,13 +68,13 @@ controller.GetUserNFTTokens = async function (req, res) {
     const tokens = await NFTTokenModel.find({ user: req.user._id });
 
     return res.status(200).json({
-      status: "success",
+      success: true,
       message: "Token retrieved successfully",
       data: tokens
     });
   } catch (ex) {
     return res.status(502).json({
-      status: "error",
+      success: false,
       message: ex.message
     });
   }
@@ -95,13 +95,13 @@ controller.createToken = async function (req, res) {
     await model.save();
 
     return res.status(200).json({
-      status: "sucess",
+      success: true,
       message: "Token saved successfully",
       data: model
     });
   } catch (ex) {
     return res.status(500).json({
-      status: "error",
+      success: false,
       error: ex.message
     });
   }
