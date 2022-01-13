@@ -28,7 +28,6 @@ controller.AddUser = async function (req, res) {
         password: req.body.password,
         countryCode: req.body.countryCode,
         phoneNo: req.body.phoneNo,
-        picture: req.body.picture
     };
 
     if (typeof user.username !== `undefined`) {
@@ -241,33 +240,57 @@ controller.ForgetPassword = async function (req, res) {
     if (!user) {
         res.status(500).json({success: false, message: "something went wrong please try again later"});
     } else {
-        let randomPassword = await common.generateRandomPassword(15);
         let code = await common.generateCode(6);
         let subject = "reset password";
-        let message = `You random password to login is ${randomPassword} and your 6 digit code is ${code}`;
+        let message = `Here is a 6 digit verification code ${code}`;
 
-        const resp = await UsersModel.updateOne({email: email}, {password: randomPassword}).exec();
-        if (resp) {
-            let is_sent = await mailer.sendMail(user.email, subject, message);
-            if (is_sent) {
-                const fpass = new ForgetPasswordModel();
-                fpass.user = user._id;
-                fpass.code = code;
-                await fpass.save();
-                res.status(200).json({success: true, message: "random password has been sent to your registred email"});
-            } else {
-                res.status(500).json({success: false, message: "Something went wrong. Please try again later"});
-            }
+        let exist = await ForgetPasswordModel.findOne({user: user._id});
+        if (exist) {
+            await ForgetPasswordModel.deleteOne({_id: exist._id})
+        }
+
+        let is_sent = await mailer.sendMail(user.email, subject, message);
+        if (is_sent) {
+            const fpass = new ForgetPasswordModel();
+            fpass.user = user._id;
+            fpass.code = code;
+            await fpass.save();
+            res.status(200).json({success: true, message: "verification code has been sent to your registered email"});
+        } else {
+            res.status(500).json({success: false, message: "Something went wrong. Please try again later"});
         }
     }
 };
 
 controller.ForgetPasswordVerify = async function (req, res) {
     try {
+        const email = req.body.email;
+        const password = req.body.password;
         const code = req.body.code;
-        const forgetpass = await ForgetPasswordModel.findOneAndDelete({code: code});
-        return res.status(200).json({success: true, data: "Verified"});
+
+        if (!email || !password || !code) {
+            return res.status(400).json({success: false, message: "Email, Password & Code is required"});
+        }
+
+        const user = await UsersModel.findOne({email: req.body.email});
+        if (!user) {
+            return res.status(400).json({success: false, message: `We do not have record for ${email}`});
+        }
+
+        const is_code_valid = await ForgetPasswordModel.findOne({code: code, user: user._id})
+        if (!is_code_valid) {
+            return res.status(400).json({success: false, message: `Your code ${code} is invalid. Please add valid code`});
+        }
+
+        const update = await UsersModel.findOneAndUpdate({_id: user._id}, {password: password});
+        if (update) {
+            await ForgetPasswordModel.deleteOne({_id: is_code_valid._id});
+            return res.status(200).json({success: true, message: "You are all done. New password has been updated"});
+        } else {
+            return res.status(502).json({success: false, message: "Something went wrong please try again later"});
+        }
     } catch (ex) {
+        console.log(ex);
         return res.status(502).json({success: false, message: ex.message});
     }
 };
