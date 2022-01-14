@@ -94,7 +94,7 @@ controller.createToken = async function (req, res) {
             description,
             tags,
             collection_id,
-            image: `${req.protocol}://${settings.server.clientURL}/${path.replace(/\\/g, "/")}`,
+            image: `${settings.server.clientURL}/${path.replace(/\\/g, "/")}`,
             user: req.user._id
         };
 

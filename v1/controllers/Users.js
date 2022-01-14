@@ -300,7 +300,7 @@ controller.uploadImage = async function (req, res) {
         const {path} = req.file;
         console.log(path)
         let data = {
-            image: `${req.protocol}://${settings.server.clientURL}/${path.replace(/\\/g, "/")}`,
+            image: `${settings.server.clientURL}/${path.replace(/\\/g, "/")}`,
         };
         return res.status(200).json({success: true, data: data});
     } catch (ex) {
