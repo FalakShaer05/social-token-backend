@@ -2,6 +2,7 @@ const NFTTokenModel = require(`./models/NFTTokenModel`);
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
+const settings = require(`../../server-settings`);
 
 const controller = {};
 
@@ -93,7 +94,7 @@ controller.createToken = async function (req, res) {
             description,
             tags,
             collection_id,
-            image: `${req.protocol}://${req.get("host")}/${path.replace(/\\/g, "/")}`,
+            image: `${req.protocol}://${settings.server.clientURL}/${path.replace(/\\/g, "/")}`,
             user: req.user._id
         };
 

@@ -3,9 +3,9 @@
     "connectionString": "mongodb://localhost:27017/NFTMarketplaceDatabase"
   },
   "server": {
-    "siteURL": "localhost",
-    "clientURL": "http://localhost:3000",
-    "name": "NFT Marketplace Backend API",
+    "siteURL": "https://socialtokennft.com",
+    "clientURL": "https://apis.socialtokennft.com",
+    "name": "NFT Marketplace Backenda API",
     "signingKey": "NFTMarketplaceBackendAPI",
     "secret": "nftIIBlogYYChainXXMarketXXPlaceXX",
     "port": 3000,
