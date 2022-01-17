@@ -12,7 +12,7 @@ controller.GetToken = async function (req, res) {
     if (!tokenID) {
       return res.status(400).send({
         success: false,
-        error: "Token id is a required parameter"
+        message: "Token id is a required parameter"
       });
     }
 
@@ -28,8 +28,7 @@ controller.GetToken = async function (req, res) {
     console.log(ex);
     return res.status(500).send({
       success: false,
-      error: "server internal error",
-      message: ex
+      message: "error"
     });
   }
 };
@@ -40,7 +39,7 @@ controller.GetArt = async function (req, res) {
     if (!artID) {
       return res.status(400).send({
         success: false,
-        error: "Art id is a required parameter"
+        message: "Art id is a required parameter"
       });
     }
 
@@ -55,11 +54,9 @@ controller.GetArt = async function (req, res) {
     let readStream = fileSystem.createReadStream(filePath);
     readStream.pipe(res);
   } catch (ex) {
-    console.log(ex);
     return res.status(500).send({
       success: false,
-      error: "server internal error",
-      message: ex
+      message: "error"
     });
   }
 };
@@ -76,7 +73,7 @@ controller.GetUserNFTTokens = async function (req, res) {
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      message: ex.message
+      message: "error"
     });
   }
 };
@@ -94,7 +91,7 @@ controller.createToken = async function (req, res) {
       description,
       tags,
       collection_id,
-      image: `${req.protocol}://${req.get("host")}/${path.replace(/\\/g, "/")}`,
+      image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
       user: req.user._id
     };
 
@@ -114,7 +111,7 @@ controller.createToken = async function (req, res) {
   } catch (ex) {
     return res.status(500).json({
       success: false,
-      error: ex.message
+      message: "error"
     });
   }
 };

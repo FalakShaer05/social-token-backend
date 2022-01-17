@@ -2,6 +2,7 @@ const CollectionModel = require(`./models/CollectionModel`);
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
+const settings = require("../../server-settings.json");
 
 const controller = {};
 
@@ -11,7 +12,7 @@ controller.GetToken = async function (req, res) {
     if (!tokenID) {
       return res.status(400).send({
         success: false,
-        error: "Token id is a required parameter"
+        message: "Token id is a required parameter"
       });
     }
 
@@ -27,8 +28,7 @@ controller.GetToken = async function (req, res) {
     console.log(ex);
     return res.status(500).send({
       success: false,
-      error: "server internal error",
-      message: ex
+      message: "error"
     });
   }
 };
@@ -39,7 +39,7 @@ controller.GetArt = async function (req, res) {
     if (!artID) {
       return res.status(400).send({
         success: false,
-        error: "Art id is a required parameter"
+        message: "Art id is a required parameter"
       });
     }
 
@@ -57,16 +57,15 @@ controller.GetArt = async function (req, res) {
     console.log(ex);
     return res.status(500).send({
       success: false,
-      error: "server internal error",
-      message: ex
+      message: "error"
     });
   }
 };
 
 controller.createCollection = async function (req, res) {
   try {
-    const thumbnail_image = `${req.protocol}://${req.get("host")}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
-    const timeline_image = `${req.protocol}://${req.get("host")}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
+    const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
+    const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
 
     let data = {
       name: req.body.collection_name,
@@ -91,15 +90,15 @@ controller.createCollection = async function (req, res) {
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      error: ex.message
+      message: "error"
     });
   }
 };
 
 controller.updateCollection = async function (req, res) {
   try {
-    const thumbnail_image = `${req.protocol}://${req.get("host")}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
-    const timeline_image = `${req.protocol}://${req.get("host")}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
+    const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
+    const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
       name: req.body.collection_name,
       thumbnail_image: thumbnail_image,
@@ -115,7 +114,7 @@ controller.updateCollection = async function (req, res) {
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      error: ex.message
+      message: "error"
     });
   }
 };
@@ -126,12 +125,13 @@ controller.GetCollectionsByUser = async function (req, res) {
 
     return res.status(200).json({
       success: true,
+      message: "Collections retrieved successfully",
       data: collections
     });
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      error: ex.message
+      message: "error"
     });
   }
 };

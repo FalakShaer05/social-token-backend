@@ -4,7 +4,7 @@
   },
   "server": {
     "siteURL": "https://socialtokennft.com",
-    "clientURL": "https://apis.socialtokennft.com",
+    "serverURL": "https://apis.socialtokennft.com",
     "name": "NFT Marketplace Backenda API",
     "signingKey": "NFTMarketplaceBackendAPI",
     "secret": "nftIIBlogYYChainXXMarketXXPlaceXX",
