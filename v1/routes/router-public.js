@@ -18,7 +18,7 @@ module.exports = function RouterPublic(database, settings) {
 
   // Users
   router.route(`/signup`).post(users.AddUser);
-  router.route(`/upload`).post(upload.single("img"), users.uploadImage);
+  router.route(`/upload/:id`).post(upload.single("img"), users.uploadImage);
   router.route(`/forget-password`).post(users.ForgetPassword);
   router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
 

@@ -6,6 +6,7 @@ const mailer = require("../helpers/mailer");
 const bcrypt = require(`bcrypt-nodejs`);
 const common = require("./Common");
 const jwt = require(`jsonwebtoken`);
+const Usermodel = require("./models/UsersModel");
 
 const controller = {};
 const validateUserName = async function (name) {
@@ -298,10 +299,14 @@ controller.ForgetPasswordVerify = async function (req, res) {
 controller.uploadImage = async function (req, res) {
   try {
     const { path } = req.file;
-    console.log(path);
     let data = {
       image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`
     };
+
+    const user = await UsersModel.findById(req.params.id);
+    user.picture = data.image;
+    await user.save();
+    console.log(user);
     return res.status(200).json({ success: true, message: "Image uploaded", data: data });
   } catch (ex) {
     return res.status(502).json({ success: false, message: "error" });
