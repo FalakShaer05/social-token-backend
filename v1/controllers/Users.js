@@ -306,7 +306,6 @@ controller.uploadImage = async function (req, res) {
     const user = await UsersModel.findById(req.params.id);
     user.picture = data.image;
     await user.save();
-    console.log(user);
     return res.status(200).json({ success: true, message: "Image uploaded", data: data });
   } catch (ex) {
     return res.status(502).json({ success: false, message: "error" });
