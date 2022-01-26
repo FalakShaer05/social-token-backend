@@ -80,7 +80,7 @@ controller.GetUserNFTTokens = async function (req, res) {
 controller.GetAllNFTTokens = async function (req, res) {
   try {
     let pageNumber = req.query.page;
-    let limit = 5;
+    let limit = 10;
     let filter = {};
     if (req.query.category) {
       filter.category = req.query.category;

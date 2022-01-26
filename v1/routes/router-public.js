@@ -25,6 +25,7 @@ module.exports = function RouterPublic(database, settings) {
 
   // NFT
   router.route(`/get-token/:id`).get(NFTToken.GetToken);
+  router.route("/token").get(NFTToken.GetAllNFTTokens);
 
   // Media Arts
   router.route(`/digital-assets/:id`).get(NFTToken.GetArt);

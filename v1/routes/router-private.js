@@ -14,7 +14,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.use(authentication.authenticate);
 
   //NFT Tokens
-  router.route("/token").post(upload.single("img"), NFTToken.createToken).get(NFTToken.GetAllNFTTokens);
+  router.route("/token").post(upload.single("img"), NFTToken.createToken);
   router.route("/token/:id").get(NFTToken.GetUserNFTTokens);
   // Collections
   router.post("/createcollection", uploaderSettings, Collections.createCollection);
