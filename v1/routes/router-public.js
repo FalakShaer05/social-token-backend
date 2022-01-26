@@ -3,6 +3,7 @@ const _auth = require(`../auth`);
 const users = require(`../controllers/Users`);
 const NFTToken = require(`../controllers/NFTToken`);
 const upload = require("../config/uploadConfig");
+const Category = require("../controllers/Category");
 
 module.exports = function RouterPublic(database, settings) {
   const db = database;
@@ -23,10 +24,13 @@ module.exports = function RouterPublic(database, settings) {
   router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
 
   // NFT
-  router.route(`/token/:tokenID`).get(NFTToken.GetToken);
+  router.route(`/get-token/:id`).get(NFTToken.GetToken);
 
   // Media Arts
-  router.route(`/digital-assets/:artID`).get(NFTToken.GetArt);
+  router.route(`/digital-assets/:id`).get(NFTToken.GetArt);
+
+  router.route("/category").get(Category.GetAllCategories);
+  router.route("/category/:id").get(Category.GetCategory);
 
   return router;
 };

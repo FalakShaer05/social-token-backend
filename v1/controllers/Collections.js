@@ -90,7 +90,7 @@ controller.createCollection = async function (req, res) {
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      message: "error"
+      message: ex.message
     });
   }
 };
