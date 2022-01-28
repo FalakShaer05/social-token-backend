@@ -16,10 +16,11 @@ module.exports = function RouterPrivate(database, settings) {
   //NFT Tokens
   router.route("/token").post(upload.single("img"), NFTToken.createToken);
   router.route("/token/:id").get(NFTToken.GetUserNFTTokens);
+  router.route("/tokens").get(NFTToken.GetAllNFTTokens);
   // Collections
   router.post("/createcollection", uploaderSettings, Collections.createCollection);
   router.put("/updatecollection/:id", uploaderSettings, Collections.updateCollection);
-  router.get("/collections/:id", Collections.GetCollectionsByUser);
+  router.get("/collections", Collections.GetCollections);
 
   // Wallet
   router.put("/connect/:id/wallet/:wallet_token", User.connectWallet);

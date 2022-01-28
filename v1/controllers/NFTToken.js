@@ -77,17 +77,44 @@ controller.GetUserNFTTokens = async function (req, res) {
   }
 };
 
-controller.GetAllNFTTokens = async function (req, res) {
+controller.GetAllTrendingNFTTokens = async function (req, res) {
   try {
-    let pageNumber = req.query.page;
-    let limit = 10;
+    let limit = 20;
     let filter = {};
     if (req.query.category) {
       filter.category = req.query.category;
     }
 
+    const tokens = await NFTTokenModel.find(filter).limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Token retrieved successfully",
+      data: tokens
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
+controller.GetAllNFTTokens = async function (req, res) {
+  try {
+    let pageNumber = req.query.page;
+    let limit = 20;
+    let filter = { is_private: false };
     if (req.query.user) {
       filter.user = req.query.user;
+    }
+
+    if (req.query.name) {
+      filter.name = { $regex: req.query.name };
+    }
+
+    if (req.query.collection) {
+      filter.collection_id = req.query.collection;
     }
 
     const tokens = await NFTTokenModel.find(filter)
@@ -110,7 +137,7 @@ controller.GetAllNFTTokens = async function (req, res) {
 controller.createToken = async function (req, res) {
   try {
     const { path } = req.file;
-    const { name, description, tags, collection_id, category_id } = req.body;
+    const { name, description, tags, collection_id, category_id, is_private } = req.body;
     if (!name || !description || !collection_id) {
       return res.status(400).json({ success: false, message: "Name, Description & Collection Id is required" });
     }
@@ -119,6 +146,7 @@ controller.createToken = async function (req, res) {
       name,
       description,
       tags,
+      is_private: is_private,
       collection_id,
       image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
       user: req.user._id,

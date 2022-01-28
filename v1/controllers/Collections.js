@@ -6,33 +6,6 @@ const settings = require("../../server-settings.json");
 
 const controller = {};
 
-controller.GetToken = async function (req, res) {
-  const tokenID = req.params.tokenID;
-  try {
-    if (!tokenID) {
-      return res.status(400).send({
-        success: false,
-        message: "Token id is a required parameter"
-      });
-    }
-
-    const token = await NFTTokenModel.findOne({ tokenId: tokenID });
-    if (token) {
-      return res.status(200).send({
-        success: true,
-        message: "Token retrieved successfully",
-        data: token
-      });
-    }
-  } catch (ex) {
-    console.log(ex);
-    return res.status(500).send({
-      success: false,
-      message: "error"
-    });
-  }
-};
-
 controller.GetArt = async function (req, res) {
   const artID = req.params.artID;
   try {
@@ -71,7 +44,9 @@ controller.createCollection = async function (req, res) {
       name: req.body.collection_name,
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
-      user: req.user._id
+      user: req.body.user,
+      category: req.body.category,
+      is_private: req.body.is_private
     };
 
     const exist = await CollectionModel.find({ user: req.user._id, name: data.name });
@@ -102,7 +77,9 @@ controller.updateCollection = async function (req, res) {
     let data = {
       name: req.body.collection_name,
       thumbnail_image: thumbnail_image,
-      timeline_image: timeline_image
+      timeline_image: timeline_image,
+      category: req.body.category,
+      is_private: req.body.is_private
     };
     const model = await CollectionModel.findByIdAndUpdate(req.params.id, data, { new: true, useFindAndModify: false });
 
@@ -119,9 +96,45 @@ controller.updateCollection = async function (req, res) {
   }
 };
 
-controller.GetCollectionsByUser = async function (req, res) {
+controller.GetTrendingCollections = async function (req, res) {
   try {
-    let collections = await CollectionModel.find({ user: req.params.id });
+    let limit = 20;
+    let filter = {};
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+    let collections = await CollectionModel.find(filter).limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Collections retrieved successfully",
+      data: collections
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: "error"
+    });
+  }
+};
+
+controller.GetCollections = async function (req, res) {
+  try {
+    let pageNumber = req.query.page;
+    let limit = 20;
+    let filter = { is_private: false };
+    if (req.query.user) {
+      filter.user = req.query.user;
+    }
+
+    if (req.query.name) {
+      filter.name = { $regex: req.query.name };
+    }
+
+    let collections = await CollectionModel.find(filter)
+      .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,

@@ -4,13 +4,14 @@ mongoose.Promise = global.Promise;
 const { Schema } = mongoose;
 
 const NFTToken = Schema({
-  name: { type: String, required: false },
+  name: { type: String, required: true },
   description: { type: String, required: false },
   image: { type: String, required: true },
   tags: { type: Array, default: [] },
+  is_private: {type: Boolean, required: true},
   collection_id: { type: mongoose.Types.ObjectId, required: true, ref: "Collections" },
   user: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
-  category: { type: mongoose.Types.ObjectId, ref: "Category" },
+  category: { type: mongoose.Types.ObjectId, required: true, ref: "Category" },
   created: { type: Date, default: Date.now },
   updated: { type: Date, default: Date.now }
 });
