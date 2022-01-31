@@ -97,7 +97,6 @@ controller.updateCollection = async function (req, res) {
 };
 
 controller.GetCollections = async function (req, res) {
-  console.log(req.query.is_trending);
   if (req.query.is_trending) {
     try {
       let limit = 20;
