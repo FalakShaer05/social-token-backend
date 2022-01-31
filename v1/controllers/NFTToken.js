@@ -77,30 +77,30 @@ controller.GetUserNFTTokens = async function (req, res) {
   }
 };
 
-controller.GetAllTrendingNFTTokens = async function (req, res) {
-  try {
-    let limit = 20;
-    let filter = {};
-    if (req.query.category) {
-      filter.category = req.query.category;
-    }
-
-    const tokens = await NFTTokenModel.find(filter).limit(limit);
-
-    return res.status(200).json({
-      success: true,
-      message: "Token retrieved successfully",
-      data: tokens
-    });
-  } catch (ex) {
-    return res.status(502).json({
-      success: false,
-      message: ex.message
-    });
-  }
-};
-
 controller.GetAllNFTTokens = async function (req, res) {
+  if (req.query.is_trending) {
+    try {
+      let limit = 20;
+      let filter = { is_private: false };
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
+
+      const tokens = await NFTTokenModel.find(filter).limit(limit);
+
+      return res.status(200).json({
+        success: true,
+        message: "Trending tokens retrieved successfully",
+        data: tokens
+      });
+    } catch (ex) {
+      return res.status(502).json({
+        success: false,
+        message: ex.message
+      });
+    }
+  }
+
   try {
     let pageNumber = req.query.page;
     let limit = 20;
@@ -121,10 +121,13 @@ controller.GetAllNFTTokens = async function (req, res) {
       .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
       .limit(limit);
 
+    let numberOfPages = await NFTTokenModel.count(filter);
+    numberOfPages = Math.ceil(numberOfPages / limit);
+
     return res.status(200).json({
       success: true,
       message: "Token retrieved successfully",
-      data: tokens
+      data: { next: pageNumber < numberOfPages ? true : false, tokens }
     });
   } catch (ex) {
     return res.status(502).json({

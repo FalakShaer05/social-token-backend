@@ -26,15 +26,11 @@ module.exports = function RouterPublic(database, settings) {
 
   // NFT
   router.route(`/get-token/:id`).get(NFTToken.GetToken);
-  router.route("/trending-tokens").get(NFTToken.GetAllTrendingNFTTokens);
-
   // Media Arts
   router.route(`/digital-assets/:id`).get(NFTToken.GetArt);
 
   router.route("/category").get(Category.GetAllCategories);
   router.route("/category/:id").get(Category.GetCategory);
-
-  router.get("/trending-collections", Collections.GetTrendingCollections);
 
   return router;
 };

@@ -96,30 +96,31 @@ controller.updateCollection = async function (req, res) {
   }
 };
 
-controller.GetTrendingCollections = async function (req, res) {
-  try {
-    let limit = 20;
-    let filter = {};
-    if (req.query.category) {
-      filter.category = req.query.category;
-    }
-
-    let collections = await CollectionModel.find(filter).limit(limit);
-
-    return res.status(200).json({
-      success: true,
-      message: "Collections retrieved successfully",
-      data: collections
-    });
-  } catch (ex) {
-    return res.status(502).json({
-      success: false,
-      message: "error"
-    });
-  }
-};
-
 controller.GetCollections = async function (req, res) {
+  console.log(req.query.is_trending);
+  if (req.query.is_trending) {
+    try {
+      let limit = 20;
+      let filter = { is_private: false };
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
+
+      let collections = await CollectionModel.find(filter).limit(limit);
+
+      return res.status(200).json({
+        success: true,
+        message: "Trending collections retrieved successfully",
+        data: collections
+      });
+    } catch (ex) {
+      return res.status(502).json({
+        success: false,
+        message: "error"
+      });
+    }
+  }
+
   try {
     let pageNumber = req.query.page;
     let limit = 20;
@@ -136,10 +137,13 @@ controller.GetCollections = async function (req, res) {
       .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
       .limit(limit);
 
+    let numberOfPages = await CollectionModel.count(filter);
+    numberOfPages = Math.ceil(numberOfPages / limit);
+
     return res.status(200).json({
       success: true,
       message: "Collections retrieved successfully",
-      data: collections
+      data: { next: pageNumber < numberOfPages ? true : false, collections }
     });
   } catch (ex) {
     return res.status(502).json({
