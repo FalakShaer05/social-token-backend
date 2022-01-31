@@ -109,6 +109,10 @@ controller.GetAllNFTTokens = async function (req, res) {
       filter.user = req.query.user;
     }
 
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
     if (req.query.name) {
       filter.name = { $regex: req.query.name };
     }
