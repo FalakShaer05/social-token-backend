@@ -136,6 +136,10 @@ controller.GetCollections = async function (req, res) {
         filter.category = req.query.category;
       }
 
+      if (req.query.name) {
+        filter.name = { $regex: req.query.name };
+      }
+
       let collections = await CollectionModel.find(filter).limit(limit);
 
       return res.status(200).json({

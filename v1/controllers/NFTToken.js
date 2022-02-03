@@ -88,6 +88,10 @@ controller.GetAllNFTTokens = async function (req, res) {
         filter.category = req.query.category;
       }
 
+      if (req.query.name) {
+        filter.name = { $regex: req.query.name };
+      }
+
       const tokens = await NFTTokenModel.find(filter).limit(limit);
 
       return res.status(200).json({
