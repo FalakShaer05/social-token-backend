@@ -141,7 +141,7 @@ controller.GetCollections = async function (req, res) {
       return res.status(200).json({
         success: true,
         message: "Trending collections retrieved successfully",
-        data: collections
+        data: { next: false, collections }
       });
     } catch (ex) {
       return res.status(502).json({

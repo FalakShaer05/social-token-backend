@@ -93,7 +93,7 @@ controller.GetAllNFTTokens = async function (req, res) {
       return res.status(200).json({
         success: true,
         message: "Trending tokens retrieved successfully",
-        data: tokens
+        data: { next: false, tokens }
       });
     } catch (ex) {
       return res.status(502).json({
