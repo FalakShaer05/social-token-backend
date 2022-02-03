@@ -32,8 +32,6 @@ module.exports = function RouterPublic(database, settings) {
   router.route("/category").get(Category.GetAllCategories);
   router.route("/category/:id").get(Category.GetCategory);
 
-  // router.put("/sell-nft/:id", NFTToken.SellNFT);
-
   router.get("/collections", Collections.GetCollections);
   router.route("/tokens").get(NFTToken.GetAllNFTTokens);
 

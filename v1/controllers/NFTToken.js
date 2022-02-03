@@ -1,8 +1,10 @@
 const NFTTokenModel = require(`./models/NFTTokenModel`);
+const UserModel = require("./models/UsersModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
 const settings = require(`../../server-settings`);
+const Usermodel = require("./models/UsersModel");
 
 const controller = {};
 
@@ -16,7 +18,7 @@ controller.GetToken = async function (req, res) {
       });
     }
 
-    const token = await NFTTokenModel.findById(tokenID);
+    const token = await NFTTokenModel.findById(tokenID).populate(["user", "collection_id"]).exec();
     if (token) {
       return res.status(200).send({
         success: true,
@@ -144,7 +146,7 @@ controller.GetAllNFTTokens = async function (req, res) {
 controller.createToken = async function (req, res) {
   try {
     const { path } = req.file;
-    const { name, description, tags, collection_id, category_id, is_private } = req.body;
+    const { name, description, tags, collection_id, category_id, is_private, price, is_traded } = req.body;
     if (!name || !description || !collection_id) {
       return res.status(400).json({ success: false, message: "Name, Description & Collection Id is required" });
     }
@@ -156,8 +158,11 @@ controller.createToken = async function (req, res) {
       is_private: is_private,
       collection_id,
       image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+      share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
       user: req.user._id,
-      category: category_id
+      category: category_id,
+      price: price,
+      is_traded: is_traded
     };
 
     const exist = await NFTTokenModel.find({ name: data.name, user: data.user });
@@ -178,6 +183,28 @@ controller.createToken = async function (req, res) {
       success: false,
       message: ex.message
     });
+  }
+};
+
+controller.SellNFT = async function (req, res) {
+  try {
+    let nft = await NFTTokenModel.findById(req.params.id);
+    return res.status(200).json({ success: true, message: `${nft.name} nft is now public` });
+  } catch (ex) {
+    return res.status(502).json({ success: false, message: ex.message });
+  }
+};
+
+controller.BuyNFT = async function (req, res) {
+  try {
+    const wallet_auth_token = req.body.wallet_auth_token;
+    // const user = await Usermodel.findOne({ wallet_auth_token: wallet_auth_token });
+    let nft = await NFTTokenModel.findById(req.params.id);
+    nft.is_private = true;
+    await nft.save();
+    return res.status(200).json({ success: true, message: `${nft.name} sold to ${req.user.username}` });
+  } catch (ex) {
+    return res.status(502).json({ success: false, message: ex.message });
   }
 };
 

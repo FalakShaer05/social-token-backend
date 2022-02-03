@@ -1,4 +1,5 @@
 const CollectionModel = require(`./models/CollectionModel`);
+const NFTTokenModel = require("./models/NFTTokenModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
@@ -39,14 +40,15 @@ controller.createCollection = async function (req, res) {
   try {
     const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
-
+    const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
       name: req.body.collection_name,
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
       user: req.body.user,
       category: req.body.category,
-      is_private: req.body.is_private
+      is_private: req.body.is_private,
+      share_url: share_url
     };
 
     const exist = await CollectionModel.find({ user: req.user._id, name: data.name });
@@ -74,12 +76,14 @@ controller.updateCollection = async function (req, res) {
   try {
     const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
+    const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
       name: req.body.collection_name,
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
       category: req.body.category,
-      is_private: req.body.is_private
+      is_private: req.body.is_private,
+      share_url: share_url
     };
     const model = await CollectionModel.findByIdAndUpdate(req.params.id, data, { new: true, useFindAndModify: false });
 
@@ -92,6 +96,33 @@ controller.updateCollection = async function (req, res) {
     return res.status(502).json({
       success: false,
       message: "error"
+    });
+  }
+};
+
+controller.GetCollectionDetail = async function (req, res) {
+  try {
+    let collection = await CollectionModel.findById(req.params.id);
+    let nfts = await NFTTokenModel.find({ collection_id: collection._id });
+    let data = {
+      total_nfts_count: nfts.length,
+      total_nft_price: nfts.reduce((acc, curr) => acc + curr.price, 0),
+      traded_nft_price: nfts.reduce((acc, curr) => {
+        return curr.is_traded ? acc + curr.price : acc;
+      }, 0)
+    };
+
+    data.collection = collection;
+
+    return res.status(200).json({
+      success: true,
+      message: "Collection retrieved successfully",
+      data: data
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
     });
   }
 };
