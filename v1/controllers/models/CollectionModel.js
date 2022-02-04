@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const Collection = Schema({
   name: { type: String, required: true },
   user: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
+  created_by: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
   thumbnail_image: { type: String, required: false },
   timeline_image: { type: String, required: false },
   share_url: { type: String, required: false },
@@ -15,10 +16,6 @@ const Collection = Schema({
   updated: { type: Date, default: Date.now }
 });
 
-// Collection.pre(`save`, function (callback) {
-//   const user = this;
-//   user.updated = new Date(Date.now());
-// });
 Collection.set("toJSON", {});
 const model = mongoose.model(`Collections`, Collection);
 module.exports = model;

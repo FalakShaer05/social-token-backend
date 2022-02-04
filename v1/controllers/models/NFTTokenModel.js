@@ -14,6 +14,7 @@ const NFTToken = Schema({
   is_traded: { type: Boolean, default: false },
   collection_id: { type: mongoose.Types.ObjectId, required: true, ref: "Collections" },
   user: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
+  created_by: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
   category: { type: mongoose.Types.ObjectId, required: true, ref: "Category" },
   created: { type: Date, default: Date.now },
   updated: { type: Date, default: Date.now }

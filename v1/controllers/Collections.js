@@ -1,5 +1,6 @@
 const CollectionModel = require(`./models/CollectionModel`);
 const NFTTokenModel = require("./models/NFTTokenModel");
+const categorymodel = require("./models/CategoryModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
@@ -46,6 +47,7 @@ controller.createCollection = async function (req, res) {
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
       user: req.body.user,
+      created_by: req.body.user,
       category: req.body.category,
       is_private: req.body.is_private,
       share_url: share_url
@@ -63,6 +65,46 @@ controller.createCollection = async function (req, res) {
       success: true,
       message: "Collection saved successfully",
       data: collection
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
+controller.seedCollection = async function (req, res) {
+  try {
+    if (req.query.delete_previous) {
+      await CollectionModel.collection.drop();
+    }
+
+    const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
+    const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
+    const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
+    const categories = await categorymodel.find();
+    for (let i = 1; i <= 10; i++) {
+      for (const category of categories) {
+        let data = {
+          name: `test collection ${i} ${category.name}`,
+          thumbnail_image: thumbnail_image,
+          timeline_image: timeline_image,
+          user: req.user._id,
+          created_by: req.user._id,
+          category: category._id,
+          is_private: false,
+          share_url: share_url
+        };
+
+        const collection = new CollectionModel(data);
+        await collection.save();
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Seed success"
     });
   } catch (ex) {
     return res.status(502).json({

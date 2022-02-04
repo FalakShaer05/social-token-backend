@@ -16,12 +16,14 @@ module.exports = function RouterPrivate(database, settings) {
 
   //NFT Tokens
   router.route("/token").post(upload.single("img"), NFTToken.createToken);
+  router.route("/seedtoken").post(upload.single("img"), NFTToken.seedTokens);
   router.route("/token/:id").get(NFTToken.GetUserNFTTokens);
   router.put("/sell-nft/:id", NFTToken.SellNFT);
   router.put("/buy-nft/:id", NFTToken.BuyNFT);
 
   // Collections
   router.post("/createcollection", uploaderSettings, Collections.createCollection);
+  router.post("/seedCollection", uploaderSettings, Collections.seedCollection);
   router.put("/updatecollection/:id", uploaderSettings, Collections.updateCollection);
   router.get("/collection/:id", Collections.GetCollectionDetail);
 

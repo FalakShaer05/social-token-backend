@@ -1,10 +1,10 @@
 const NFTTokenModel = require(`./models/NFTTokenModel`);
-const UserModel = require("./models/UsersModel");
+const CollectionModel = require("./models/CollectionModel");
+const categorymodel = require("./models/CategoryModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
 const settings = require(`../../server-settings`);
-const Usermodel = require("./models/UsersModel");
 
 const controller = {};
 
@@ -164,6 +164,7 @@ controller.createToken = async function (req, res) {
       image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
       share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
       user: req.user._id,
+      created_by: req.user._id,
       category: category_id,
       price: price,
       is_traded: is_traded
@@ -184,6 +185,51 @@ controller.createToken = async function (req, res) {
     });
   } catch (ex) {
     return res.status(500).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
+controller.seedTokens = async function (req, res) {
+  try {
+    if (req.query.delete_previous) {
+      await NFTTokenModel.collection.drop();
+    }
+
+    const { path } = req.file;
+    const allcollections = await CollectionModel.find();
+    const allcategories = await categorymodel.find();
+    for (const collection of allcollections) {
+      for (const category of allcategories) {
+        for (let i = 0; i < 3; i++) {
+          let data = {
+            name: `test token ${i}${collection._id}${category._id}`,
+            description: `test description ${i}${collection._id}${category._id}`,
+            tags: [`${collection.name}`, `${category.name}`],
+            is_private: false,
+            collection_id: collection._id,
+            image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+            share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
+            user: req.user._id,
+            created_by: req.user._id,
+            category: category._id,
+            price: Math.floor(Math.random() * 100) + 1,
+            is_traded: false
+          };
+
+          const nft = new NFTTokenModel(data);
+          await nft.save();
+        }
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Seed success"
+    });
+  } catch (ex) {
+    return res.status(502).json({
       success: false,
       message: ex.message
     });
