@@ -208,11 +208,12 @@ controller.updateToken = async function (req, res) {
     if (req.file) {
       path = req.file.path;
     }
-    const { name, description, tags, collection_id, category_id, price } = req.body;
+    const { name, description, tags, collection_id, category_id, price, is_private } = req.body;
     let data = {
       name: name || record.name,
       description: description || record.description,
       tags: tags || record.tags,
+      is_private: is_private,
       collection_id: collection_id || record.collection_id,
       category: category_id || record.category,
       image: path ? `${settings.server.serverURL}/${path.replace(/\\/g, "/")}` : record.image,
