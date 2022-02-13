@@ -5,6 +5,7 @@ const NFTToken = require(`../controllers/NFTToken`);
 const upload = require("../config/uploadConfig");
 const Category = require("../controllers/Category");
 const Collections = require("../controllers/Collections");
+const authentication = require("../middleware/validateJWT");
 
 module.exports = function RouterPublic(database, settings) {
   const db = database;
@@ -33,7 +34,7 @@ module.exports = function RouterPublic(database, settings) {
   router.route("/category/:id").get(Category.GetCategory);
 
   router.get("/collections", Collections.GetCollections);
-  router.route("/tokens").get(NFTToken.GetAllNFTTokens);
+  router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
 
   return router;
 };

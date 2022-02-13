@@ -5,7 +5,6 @@ const User = require("../controllers/Users");
 const Category = require("../controllers/Category");
 const authentication = require("../middleware/validateJWT");
 const upload = require("../config/uploadConfig");
-const { Collection } = require("mongoose");
 const uploaderSettings = upload.fields([
   { name: `thumbnail_image`, maxCount: 1 },
   { name: `timeline_image`, maxCount: 1 }
@@ -17,7 +16,7 @@ module.exports = function RouterPrivate(database, settings) {
   //NFT Tokens
   router.route("/token").post(upload.single("img"), NFTToken.createToken);
   router.route("/seedtoken").post(upload.single("img"), NFTToken.seedTokens);
-  router.route("/token/:id").get(NFTToken.GetUserNFTTokens);
+  router.route("/token/:id").get(NFTToken.GetUserNFTTokens).put(upload.single("img"), NFTToken.updateToken);
   router.put("/sell-nft/:id", NFTToken.SellNFT);
   router.put("/buy-nft/:id", NFTToken.BuyNFT);
 

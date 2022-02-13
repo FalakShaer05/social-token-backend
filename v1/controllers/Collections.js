@@ -44,6 +44,7 @@ controller.createCollection = async function (req, res) {
     const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
       name: req.body.collection_name,
+      description: req.body.description,
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
       user: req.body.user,
@@ -90,6 +91,7 @@ controller.seedCollection = async function (req, res) {
           name: `test collection ${i} ${category.name}`,
           thumbnail_image: thumbnail_image,
           timeline_image: timeline_image,
+          description: `test collection ${i} ${category.name}`,
           user: req.user._id,
           created_by: req.user._id,
           category: category._id,
@@ -116,16 +118,18 @@ controller.seedCollection = async function (req, res) {
 
 controller.updateCollection = async function (req, res) {
   try {
+    let record = await CollectionModel.findById(req.params.id);
     const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
     const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
-      name: req.body.collection_name,
-      thumbnail_image: thumbnail_image,
-      timeline_image: timeline_image,
-      category: req.body.category,
-      is_private: req.body.is_private,
-      share_url: share_url
+      name: req.body.collection_name || record.name,
+      description: req.body.description || record.description,
+      thumbnail_image: thumbnail_image || record.thumbnail_image,
+      timeline_image: timeline_image || record.timeline_image,
+      category: req.body.category || record.category,
+      is_private: req.body.is_private || record.is_private,
+      share_url: share_url || record.share_url
     };
     const model = await CollectionModel.findByIdAndUpdate(req.params.id, data, { new: true, useFindAndModify: false });
 
@@ -137,7 +141,7 @@ controller.updateCollection = async function (req, res) {
   } catch (ex) {
     return res.status(502).json({
       success: false,
-      message: "error"
+      message: ex.message
     });
   }
 };
