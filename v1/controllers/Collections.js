@@ -148,9 +148,9 @@ controller.updateCollection = async function (req, res) {
 
 controller.GetCollectionDetail = async function (req, res) {
   try {
-    let collection = await CollectionModel.findById(req.params.id);
+    let collection = await CollectionModel.findById(req.params.id).lean();
     let nfts = await NFTTokenModel.find({ collection_id: collection._id });
-    let data = {
+    let other = {
       total_nfts_count: nfts.length,
       total_nft_price: nfts.reduce((acc, curr) => acc + curr.price, 0),
       traded_nft_price: nfts.reduce((acc, curr) => {
@@ -158,12 +158,12 @@ controller.GetCollectionDetail = async function (req, res) {
       }, 0)
     };
 
-    data.collection = collection;
+    collection = { ...collection, ...other };
 
     return res.status(200).json({
       success: true,
       message: "Collection retrieved successfully",
-      data: data
+      data: collection
     });
   } catch (ex) {
     return res.status(502).json({
