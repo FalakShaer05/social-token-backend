@@ -2,6 +2,7 @@ const NFTTokenModel = require(`./models/NFTTokenModel`);
 const Usermodel = require("./models/UsersModel");
 const CollectionModel = require("./models/CollectionModel");
 const categorymodel = require("./models/CategoryModel");
+const nfthistorymodel = require("../controllers/models/NFTOwnershipModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
@@ -24,7 +25,9 @@ controller.GetToken = async function (req, res) {
     if (!token) {
       return res.status(404).send();
     }
-
+    // TODO:
+    // - Table to stopre views for nft
+    // - Tablke to maintain nft ownership
     token.views++;
     await token.save();
 
@@ -292,17 +295,17 @@ controller.SellNFT = async function (req, res) {
 controller.BuyNFT = async function (req, res) {
   try {
     const wallet_auth_token = req.body.wallet_auth_token;
-    const user = await Usermodel.findOne({ wallet_auth_token: wallet_auth_token });
-    if (!user) {
-      throw new Error("No user exists with this wallet token");
-    }
-
+    let nfthistory = new nfthistorymodel();
     let nft = await NFTTokenModel.findById(req.params.id);
-
     nft.is_private = true;
+    let prevOwner = nft.user;
+    nfthistory.owner = prevOwner;
+    nfthistory.token = nft.id;
+    await nfthistory.save();
     nft.user = req.user._id;
     nft.owners++;
     await nft.save();
+
     return res.status(200).json({ success: true, message: `${nft.name} sold to ${req.user.username}` });
   } catch (ex) {
     return res.status(502).json({ success: false, message: ex.message });
