@@ -35,6 +35,7 @@ module.exports = function RouterPublic(database, settings) {
 
   router.get("/collections", Collections.GetCollections);
   router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
+  router.get("/history/:id", NFTToken.GetNFTHistory);
 
   return router;
 };

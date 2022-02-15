@@ -160,6 +160,21 @@ controller.GetAllNFTTokens = async function (req, res) {
   }
 };
 
+controller.GetNFTHistory = async function (req, res) {
+  try {
+    let history = await nfthistorymodel.find({ token: req.params.id });
+    return res.status(200).json({
+      success: true,
+      message: history
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
 controller.createToken = async function (req, res) {
   try {
     const { path } = req.file;
