@@ -1,4 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
+const fs = require('fs')
+const privateKey = fs.readFileSync(".myWalletKey").toString().trim()
 
 module.exports = {
     defaultNetwork: "hardhat",
@@ -8,11 +10,11 @@ module.exports = {
         },
         mumbai: {
             url: "https://rpc-mumbai.maticvigil.com",
-            accounts: [process.env.marketWallet]
+            accounts: [privateKey]
         },
         mainnet: {
             url: "https://rpc-mainnet.matic.network",
-            accounts: [process.env.marketWallet]
+            accounts: [privateKey]
         }
     },
     solidity: {

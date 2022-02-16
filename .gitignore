@@ -11,5 +11,5 @@ typechain
 #Hardhat files
 cache
 artifacts
-.hardhat_secret
+.myWalletKey
 package-lock.json
