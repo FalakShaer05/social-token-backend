@@ -4,6 +4,9 @@ const users = require(`../controllers/Users`);
 const NFTToken = require(`../controllers/NFTToken`);
 const Web3 = require(`../controllers/Web3`);
 const upload = require("../config/uploadConfig");
+const Category = require("../controllers/Category");
+const Collections = require("../controllers/Collections");
+const authentication = require("../middleware/validateJWT");
 
 module.exports = function RouterPublic(database, settings) {
     const db = database;
@@ -25,14 +28,23 @@ module.exports = function RouterPublic(database, settings) {
 
 
     // NFT
-    router.route(`/token/listed`).get(NFTToken.GetAllNFTTokensForSale);
     router.route(`/token/:tokenID`).get(NFTToken.GetToken);
-
-    // Media Arts
-    router.route(`/digital-assets/:artID`).get(NFTToken.GetArt);
 
     //Web3
     router.route(`/web3/home`).get(Web3.HomeFunction);
+
+    // NFT
+    router.route(`/get-token/:id`).get(NFTToken.GetToken);
+
+    // Media Arts
+    router.route(`/digital-assets/:id`).get(NFTToken.GetArt);
+
+    router.route("/category").get(Category.GetAllCategories);
+    router.route("/category/:id").get(Category.GetCategory);
+
+    router.get("/collections", Collections.GetCollections);
+    router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
+    router.get("/history/:id", NFTToken.GetNFTHistory);
 
     return router;
 };
