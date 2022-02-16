@@ -27,9 +27,5 @@
     "emailAddress": "dust012012@gmail.com",
     "emailPassword": "rqhpshuricssjjan",
     "sender": "dust012012@gmail.com"
-  },
-  "NFTStoreConfig": {
-    "nftmarketaddress": "0xc34a05ecca28dB83FC1791f30E07997AAA93eC74",
-    "nftaddress": "0xD2093A346a46F6e9AecE95Cf4889e9c4007c08e9"
   }
 }
