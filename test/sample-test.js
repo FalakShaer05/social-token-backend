@@ -13,7 +13,7 @@ describe("NFTMarket", function () {
         await nft.deployed()
         const nftContractAddress = nft.address
 
-        let listingPrice = await market.getListingPrice()
+        let listingPrice = await market.getlistingFee()
         listingPrice = listingPrice.toString()
 
         const auctionPrice = ethers.utils.parseUnits('1', 'ether')
