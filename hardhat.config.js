@@ -10,11 +10,11 @@ module.exports = {
         },
         mumbai: {
             url: "https://rpc-mumbai.maticvigil.com",
-            accounts: [privateKey]
+            accounts: [process.env.marketWallet]
         },
         mainnet: {
             url: "https://rpc-mainnet.matic.network",
-            accounts: [privateKey]
+            accounts: [process.env.marketWallet]
         }
     },
     solidity: {
