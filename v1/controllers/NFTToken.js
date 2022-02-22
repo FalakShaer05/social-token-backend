@@ -86,6 +86,7 @@ controller.createToken = async function (req, res) {
             });
         });
     } catch (ex) {
+        console.log(ex)
         return res.status(500).json({
             success: false,
             message: ex.message
