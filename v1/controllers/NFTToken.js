@@ -15,14 +15,15 @@ const {ethers} = require('ethers');
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
-const ipfs = create({
-    host: 'https://ipfs.infura.io',
-    port: 5001,
-    protocol: 'http',
-    headers: {
-        authorization: `Basic ${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret).toString('base64')}`
-    }
-})
+const ipfs = create('https://ipfs.infura.io:5001/api/v0')
+// const ipfs = create({
+//     host: 'https://ipfs.infura.io',
+//     port: 5001,
+//     protocol: 'https',
+//     headers: {
+//         authorization: `Basic ${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret).toString('base64')}`
+//     }
+// })
 
 // Importing Artifacts Contracts
 const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
@@ -32,7 +33,6 @@ const controller = {};
 
 controller.createToken = async function (req, res) {
     try {
-        console.log(req.file)
         const {path} = req.file;
         const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
         if (!name || !description || !collection_id) {
@@ -41,10 +41,7 @@ controller.createToken = async function (req, res) {
 
         fs.readFile(path, 'utf8', async function (err, data) {
             if (err) throw err;
-
-
-
-            const ipfsData = await ipfs.add(data)
+            const ipfsData = await ipfs.add(path)
             const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
 
             const metaData = JSON.stringify({
@@ -87,7 +84,6 @@ controller.createToken = async function (req, res) {
             });
         });
     } catch (ex) {
-        console.log(ex)
         return res.status(500).json({
             success: false,
             message: ex.message

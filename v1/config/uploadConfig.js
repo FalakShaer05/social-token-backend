@@ -6,9 +6,7 @@ const storage = multer.diskStorage({
     },
     filename: (request, file, callback) => {
         const fileExtension = file.originalname.split(".")[1];
-
         const newNameFile = require("crypto").randomBytes(16).toString("hex");
-
         callback(null, `${newNameFile}.${fileExtension}`);
     },
 });
