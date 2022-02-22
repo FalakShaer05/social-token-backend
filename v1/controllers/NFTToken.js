@@ -1,15 +1,158 @@
 const NFTTokenModel = require(`./models/NFTTokenModel`);
-const Usermodel = require("./models/UsersModel");
-const nftviewershipmodel = require("./models/NFTView");
+const nftViewerShipModel = require("./models/NFTView");
 const CollectionModel = require("./models/CollectionModel");
-const categorymodel = require("./models/CategoryModel");
-const nfthistorymodel = require("../controllers/models/NFTOwnershipModel");
+const categoryModel = require("./models/CategoryModel");
+const nftHistoryModel = require("../controllers/models/NFTOwnershipModel");
+const nftTransactionsModel = require("../controllers/models/NFTTransactions");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
 const settings = require(`../../server-settings`);
+const fs = require("fs");
+
+const axios = require('axios');
+const {ethers} = require('ethers');
+
+// Preparing IPFS Client
+const {create} = require('ipfs-http-client')
+const ipfs = create({
+    host: 'https://ipfs.infura.io',
+    port: 5001,
+    protocol: 'http',
+    headers: {
+        authorization: `Basic ${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret).toString('base64')}`
+    }
+})
+
+// Importing Artifacts Contracts
+const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
+const Market = require('../../artifacts/contracts/NFTMarket.sol/NFTMarket.json')
 
 const controller = {};
+
+controller.createToken = async function (req, res) {
+    try {
+        const {path} = req.file;
+        const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
+        if (!name || !description || !collection_id) {
+            return res.status(400).json({success: false, message: "Name, Description & Collection Id is required"});
+        }
+
+        fs.readFile(path, 'utf8', async function (err, data) {
+            if (err) throw err;
+
+
+
+            const ipfsData = await ipfs.add(data)
+            const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
+
+            const metaData = JSON.stringify({
+                name, description, image: ipfsUrl
+            })
+
+            const addingMarketData = await ipfs.add(metaData)
+            if (!addingMarketData) {
+                return res.status(400).json({success: false, message: "Something went wrong please try again later"});
+            }
+
+            let saveAble = {
+                name,
+                description,
+                tags,
+                is_private: is_private,
+                collection_id,
+                image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+                share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
+                ipfsUrl: `https://ipfs.infura.io/ipfs/${addingMarketData.path}`,
+                user: req.user._id,
+                created_by: req.user._id,
+                category: category_id,
+                price: price,
+                is_traded: is_traded
+            };
+
+            const exist = await NFTTokenModel.find({name: saveAble.name, user: saveAble.user});
+            if (exist.length > 0) {
+                return res.status(400).json({success: false, message: "NFT with same name already exist"});
+            }
+
+            let model = new NFTTokenModel(saveAble);
+            await model.save();
+            model = await NFTTokenModel.findById(model.id).populate("category").exec();
+            return res.status(200).json({
+                success: true,
+                message: "Token saved successfully",
+                data: model
+            });
+        });
+    } catch (ex) {
+        return res.status(500).json({
+            success: false,
+            message: ex.message
+        });
+    }
+};
+
+controller.SellNFT = async function (req, res) {
+    try {
+        let nft = await NFTTokenModel.findById(req.params.id);
+        if (!nft)
+            return res.status(404).json({success: false, message: "Found nothing for minting "});
+        if (!nft.price)
+            return res.status(400).json({success: false, message: "Price is required"});
+
+        const walletKey = req.body.walletKey;
+
+
+        const provider = new ethers.providers.JsonRpcProvider(process.env.rpcProvider)
+        const wallet = new ethers.Wallet(walletKey, provider);
+        const price = ethers.utils.parseUnits((nft.price).toString(), 'ether');
+        const balancePromise = wallet.getBalance();
+        let availableBalance = 0;
+
+        await balancePromise.then((balance) => {
+            availableBalance = balance
+        });
+
+        if (price > availableBalance && availableBalance === 0) {
+            return res.status(400).json({success: false, message: "Insufficient funds, Please recharge your wallet before transcation"});
+        }
+
+        let contract = new ethers.Contract(process.env.nftaddress, NFT.abi, wallet);
+        let transaction = await contract.createToken(nft.ipfsUrl)
+        let tx = await transaction.wait()
+        let event = tx.events[0]
+        let value = event.args[2]
+        let tokenId = value.toNumber()
+
+        contract = new ethers.Contract(process.env.nftmarketaddress, Market.abi, wallet)
+        let listingFee = await contract.getlistingFee()
+        listingFee = listingFee.toString()
+
+        transaction = await contract.createMarketItem(process.env.nftaddress, tokenId, price, {value: listingFee})
+        await transaction.wait()
+
+        let transactionSaveAble = {
+            tokenId: nft._id,
+            nftTokenId: tokenId,
+            transaction: transaction,
+            transaction_type: 'minted'
+        };
+
+        const transactionHistory = new nftTransactionsModel(transactionSaveAble);
+        await transactionHistory.save();
+
+        nft.is_private = false;
+        nft.tokenID = tokenId;
+        nft.transaction = transactionHistory._id;
+        await nft.save();
+
+        return res.status(200).json({success: true, message: `${nft.name} nft is now public`});
+    } catch (ex) {
+        console.log(ex)
+        return res.status(502).json({success: false, message: ex.message});
+    }
+};
 
 controller.GetToken = async function (req, res) {
     const tokenID = req.params.id;
@@ -21,13 +164,15 @@ controller.GetToken = async function (req, res) {
             });
         }
         let token = await NFTTokenModel.findById(tokenID).populate(["user", "collection_id", "created_by"]).exec();
-        if (!token) {
-            return res.status(404).send();
-        }
+        if (!token)
+            return res.status(404).send({success: false, message: `NFT not found`});
+
+        let transactions = await nftTransactionsModel.find({tokenId: token._id}).exec();
+
         if (req.user) {
-            let exist = await nftviewershipmodel.findOne({user: req.user._id, token: token.id});
+            let exist = await nftViewerShipModel.findOne({user: req.user._id, token: token.id});
             if (!exist) {
-                let nftview = new nftviewershipmodel({user: req.user._id, token: token.id});
+                let nftview = new nftViewerShipModel({user: req.user._id, token: token.id});
                 await nftview.save();
                 token.views++;
             }
@@ -37,7 +182,8 @@ controller.GetToken = async function (req, res) {
         return res.status(200).send({
             success: true,
             message: "Token retrieved successfully",
-            data: token
+            data: token,
+            transactions: transactions
         });
     } catch (ex) {
         return res.status(500).send({
@@ -77,12 +223,14 @@ controller.GetArt = async function (req, res) {
 
 controller.GetUserNFTTokens = async function (req, res) {
     try {
+
+
         const tokens = await NFTTokenModel.find({user: req.params.id});
 
         return res.status(200).json({
             success: true,
             message: "Token retrieved successfully",
-            data: tokens
+            data: tokens,
         });
     } catch (ex) {
         return res.status(502).json({
@@ -121,6 +269,28 @@ controller.GetAllNFTTokens = async function (req, res) {
     }
 
     try {
+        const walletAddress = req.body.wallet_address
+        const provider = new ethers.providers.JsonRpcProvider(process.env.rpcProvider)
+        const signer = new ethers.VoidSigner(walletAddress, provider)
+
+        const marketContract = new ethers.Contract(process.env.nftmarketaddress, Market.abi, signer)
+        const tokenContract = new ethers.Contract(process.env.nftaddress, NFT.abi, provider)
+        const data = await marketContract.fetchMyNFT()
+
+        const items = await Promise.all(data.map(async i => {
+            const tokenUri = await tokenContract.tokenURI(i.tokenId)
+            const meta = await axios.get(tokenUri)
+            let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+            let item = {
+                price,
+                tokenId: i.tokenId.toNumber(),
+                seller: i.seller,
+                owner: i.owner,
+                image: meta.data.image,
+            }
+            return item
+        }))
+
         let pageNumber = req.query.page;
         let limit = 20;
         let filter = {is_private: false};
@@ -153,7 +323,8 @@ controller.GetAllNFTTokens = async function (req, res) {
         return res.status(200).json({
             success: true,
             message: "Token retrieved successfully",
-            data: {next: pageNumber < numberOfPages ? true : false, tokens}
+            data: {next: pageNumber < numberOfPages ? true : false, tokens},
+            items: items
         });
     } catch (ex) {
         return res.status(502).json({
@@ -165,57 +336,13 @@ controller.GetAllNFTTokens = async function (req, res) {
 
 controller.GetNFTHistory = async function (req, res) {
     try {
-        let history = await nfthistorymodel.find({token: req.params.id});
+        let history = await nftHistoryModel.find({token: req.params.id});
         return res.status(200).json({
             success: true,
             message: history
         });
     } catch (ex) {
         return res.status(502).json({
-            success: false,
-            message: ex.message
-        });
-    }
-};
-
-controller.createToken = async function (req, res) {
-    try {
-        const {path} = req.file;
-        const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
-        if (!name || !description || !collection_id) {
-            return res.status(400).json({success: false, message: "Name, Description & Collection Id is required"});
-        }
-
-        let data = {
-            name,
-            description,
-            tags,
-            is_private: is_private,
-            collection_id,
-            image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
-            share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
-            user: req.user._id,
-            created_by: req.user._id,
-            category: category_id,
-            price: price,
-            is_traded: is_traded
-        };
-
-        const exist = await NFTTokenModel.find({name: data.name, user: data.user});
-        if (exist.length > 0) {
-            return res.status(400).json({success: false, message: "NFT with same name already exist"});
-        }
-
-        let model = new NFTTokenModel(data);
-        await model.save();
-        model = await NFTTokenModel.findById(model.id).populate("category").exec();
-        return res.status(200).json({
-            success: true,
-            message: "Token saved successfully",
-            data: model
-        });
-    } catch (ex) {
-        return res.status(500).json({
             success: false,
             message: ex.message
         });
@@ -262,7 +389,7 @@ controller.seedTokens = async function (req, res) {
 
         const {path} = req.file;
         const allcollections = await CollectionModel.find();
-        const allcategories = await categorymodel.find();
+        const allcategories = await categoryModel.find();
         for (const collection of allcollections) {
             for (const category of allcategories) {
                 for (let i = 0; i < 3; i++) {
@@ -299,21 +426,10 @@ controller.seedTokens = async function (req, res) {
     }
 };
 
-controller.SellNFT = async function (req, res) {
-    try {
-        let nft = await NFTTokenModel.findById(req.params.id);
-        nft.is_private = false;
-        await nft.save();
-        return res.status(200).json({success: true, message: `${nft.name} nft is now public`});
-    } catch (ex) {
-        return res.status(502).json({success: false, message: ex.message});
-    }
-};
-
 controller.BuyNFT = async function (req, res) {
     try {
         const wallet_auth_token = req.body.wallet_auth_token;
-        let nfthistory = new nfthistorymodel();
+        let nfthistory = new nftHistoryModel();
         let nft = await NFTTokenModel.findById(req.params.id);
         nft.is_private = true;
         let prevOwner = nft.user;
