@@ -102,12 +102,53 @@ controller.GetUserNFTTokens = async function (req, res) {
 controller.GetAllNFTTokens = async function (req, res) {
   if (req.query.earnings) {
     try {
-      const tokens = await nfthistorymodel.find({owner: req.user._id});
+      let stats = {};
+      let tokens = await nfthistorymodel.find({
+        owner: req.user._id,
+        created: {
+          $gte: dayjs().utc(true).startOf("month").toDate(),
+          $lte: dayjs().utc(true).toDate()
+        }
+      });
+
+      stats.sales_this_month = tokens.length;
+      stats.earnings_this_month = tokens.reduce((pv, cv) => {
+        pv += cv.amount;
+        return pv;
+      }, 0);
+
+      tokens = await nfthistorymodel.find({
+        owner: req.user._id,
+        created: {
+          $gte: dayjs().utc(true).subtract(7, "day").toDate(),
+          $lte: dayjs().utc(true).toDate()
+        }
+      });
+
+      stats.sales_last_7_days = tokens.length;
+      stats.earnings_last_7_days = tokens.reduce((pv, cv) => {
+        pv += cv.amount;
+        return pv;
+      }, 0);
+
+      tokens = await nfthistorymodel.find({
+        owner: req.user._id,
+        created: {
+          $gte: dayjs().utc(true).subtract(1, "month").startOf("month").toDate(),
+          $lte: dayjs().utc(true).subtract(1, "month").endOf("month").toDate()
+        }
+      });
+
+      stats.sales_last_month = tokens.length;
+      stats.earnings_last_month = tokens.reduce((pv, cv) => {
+        pv += cv.amount;
+        return pv;
+      }, 0);
 
       return res.status(200).json({
         success: true,
         message: "Earnings retrieved successfully",
-        data: tokens
+        data: stats
       });
     } catch (ex) {
       return res.status(503).json({
