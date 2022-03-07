@@ -1,11 +1,17 @@
 const NFTTokenModel = require(`./models/NFTTokenModel`);
 const Usermodel = require("./models/UsersModel");
+const nftviewershipmodel = require("./models/NFTView");
 const CollectionModel = require("./models/CollectionModel");
 const categorymodel = require("./models/CategoryModel");
 const nfthistorymodel = require("../controllers/models/NFTOwnershipModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
+const customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
 const settings = require(`../../server-settings`);
 
 const controller = {};
@@ -25,10 +31,14 @@ controller.GetToken = async function (req, res) {
     if (!token) {
       return res.status(404).send();
     }
-    // TODO:
-    // - Table to stopre views for nft
-    // - Tablke to maintain nft ownership
-    token.views++;
+    if (req.user) {
+      let exist = await nftviewershipmodel.findOne({ user: req.user._id, token: token.id });
+      if (!exist) {
+        let nftview = new nftviewershipmodel({ user: req.user._id, token: token.id });
+        await nftview.save();
+        token.views++;
+      }
+    }
     await token.save();
 
     return res.status(200).send({
@@ -90,6 +100,49 @@ controller.GetUserNFTTokens = async function (req, res) {
 };
 
 controller.GetAllNFTTokens = async function (req, res) {
+  if (req.query.earnings) {
+    try {
+      const tokens = await nfthistorymodel.find({owner: req.user._id});
+
+      return res.status(200).json({
+        success: true,
+        message: "Earnings retrieved successfully",
+        data: tokens
+      });
+    } catch (ex) {
+      return res.status(503).json({
+        success: false,
+        message: ex.message
+      });
+    }
+  }
+
+  if (req.query.is_top_ranked) {
+    try {
+      let filter = { is_private: false };
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
+
+      if (req.query.name) {
+        filter.name = { $regex: req.query.name };
+      }
+
+      const tokens = await NFTTokenModel.findOne(filter).populate("created_by").exec();
+
+      return res.status(200).json({
+        success: true,
+        message: "Top token retrieved successfully",
+        data: { tokens }
+      });
+    } catch (ex) {
+      return res.status(502).json({
+        success: false,
+        message: ex.message
+      });
+    }
+  }
+
   if (req.query.is_trending) {
     try {
       let limit = 20;
@@ -102,7 +155,7 @@ controller.GetAllNFTTokens = async function (req, res) {
         filter.name = { $regex: req.query.name };
       }
 
-      const tokens = await NFTTokenModel.find(filter).limit(limit);
+      const tokens = await NFTTokenModel.find(filter).limit(limit).populate("created_by").exec();
 
       return res.status(200).json({
         success: true,
@@ -142,7 +195,9 @@ controller.GetAllNFTTokens = async function (req, res) {
     }
     const tokens = await NFTTokenModel.find(filter)
       .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
-      .limit(limit);
+      .limit(limit)
+      .populate("created_by")
+      .exec();
 
     let numberOfPages = await NFTTokenModel.count(filter);
     numberOfPages = Math.ceil(numberOfPages / limit);
@@ -162,10 +217,18 @@ controller.GetAllNFTTokens = async function (req, res) {
 
 controller.GetNFTHistory = async function (req, res) {
   try {
-    let history = await nfthistorymodel.find({ token: req.params.id });
+    let filters = { token: req.params.id };
+    if (req.query.date) {
+      filters.created = {
+        $gte: dayjs(req.query.date, "DD-MM-YYYY").utc(true).startOf("day").toDate(),
+        $lte: dayjs(req.query.date, "DD-MM-YYYY").utc(true).endOf("day").toDate()
+      };
+    }
+
+    let history = await nfthistorymodel.find(filters).populate({ path: "token", populate: "collection_id" });
     return res.status(200).json({
       success: true,
-      message: history
+      data: history
     });
   } catch (ex) {
     return res.status(502).json({
@@ -316,6 +379,7 @@ controller.BuyNFT = async function (req, res) {
     let prevOwner = nft.user;
     nfthistory.owner = prevOwner;
     nfthistory.token = nft.id;
+    nfthistory.amount = nft.price;
     await nfthistory.save();
     nft.user = req.user._id;
     nft.owners++;

@@ -1,12 +1,12 @@
 const moment = require(`moment`);
 const UsersModel = require(`./models/UsersModel`);
 const ForgetPasswordModel = require("./models/ForgottenPasswordModel");
+const CollectionsModel = require("./models/CollectionModel");
+const nfttokensmodel = require("./models/NFTTokenModel");
 const settings = require(`../../server-settings`);
 const mailer = require("../helpers/mailer");
-const bcrypt = require(`bcrypt-nodejs`);
 const common = require("./Common");
 const jwt = require(`jsonwebtoken`);
-const Usermodel = require("./models/UsersModel");
 
 const controller = {};
 const validateUserName = async function (name) {
@@ -83,7 +83,7 @@ controller.GetTraders = function (req, res) {
 };
 
 controller.GetUserProfile = function (req, res) {
-  const query = UsersModel.findById(req.params.id);
+  const query = UsersModel.findById(req.user._id);
   const promise = query.exec();
   promise
     .then(user => {
@@ -92,6 +92,17 @@ controller.GetUserProfile = function (req, res) {
     .catch(ex => {
       res.status(400).json({ success: false, message: "error" });
     });
+};
+
+controller.GetOtherUserProfile = async function (req, res) {
+  try {
+    const user = await UsersModel.findById(req.params.id).select(["first_name", "last_name", "email", "picture"]).lean();
+    user.collections_count = await CollectionsModel.count({ created_by: user._id });
+    user.nft_count = await nfttokensmodel.count({ user: user._id });
+    return res.status(200).json({ success: true, message: "Success", data: user });
+  } catch (ex) {
+    return res.status(400).json({ success: false, message: ex.message });
+  }
 };
 
 controller.UpdateUser = async function (req, res) {

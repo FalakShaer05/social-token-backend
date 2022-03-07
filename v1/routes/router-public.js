@@ -21,12 +21,13 @@ module.exports = function RouterPublic(database, settings) {
 
   // Users
   router.route(`/signup`).post(users.AddUser);
+  router.get("/user/:id", users.GetOtherUserProfile);
   router.route(`/upload/:id`).post(upload.single("img"), users.uploadImage);
   router.route(`/forget-password`).post(users.ForgetPassword);
   router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
 
   // NFT
-  router.route(`/get-token/:id`).get(NFTToken.GetToken);
+  router.route(`/get-token/:id`).get(authentication.authenticateOptional, NFTToken.GetToken);
   // Media Arts
   router.route(`/digital-assets/:id`).get(NFTToken.GetArt);
 

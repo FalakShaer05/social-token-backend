@@ -186,7 +186,15 @@ controller.GetCollections = async function (req, res) {
         filter.name = { $regex: req.query.name };
       }
 
-      let collections = await CollectionModel.find(filter).limit(limit);
+      let collections = await CollectionModel.find(filter).limit(limit).lean();
+      for (let collection of collections) {
+        let tokens = await NFTTokenModel.find({ collection_id: collection._id });
+        let collection_price = tokens.reduce((pv, cv) => {
+          pv += cv.price;
+          return pv;
+        }, 0);
+        collection.price = collection_price;
+      }
 
       return res.status(200).json({
         success: true,
@@ -196,7 +204,7 @@ controller.GetCollections = async function (req, res) {
     } catch (ex) {
       return res.status(502).json({
         success: false,
-        message: "error"
+        message: ex.message
       });
     }
   }
@@ -219,7 +227,17 @@ controller.GetCollections = async function (req, res) {
 
     let collections = await CollectionModel.find(filter)
       .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
-      .limit(limit);
+      .limit(limit)
+      .lean();
+
+    for (let collection of collections) {
+      let tokens = await NFTTokenModel.find({ collection_id: collection._id });
+      let collection_price = tokens.reduce((pv, cv) => {
+        pv += cv.price;
+        return pv;
+      }, 0);
+      collection.price = collection_price;
+    }
 
     let numberOfPages = await CollectionModel.count(filter);
     numberOfPages = Math.ceil(numberOfPages / limit);
