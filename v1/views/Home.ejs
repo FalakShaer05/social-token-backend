@@ -13,9 +13,16 @@
 </div>
 
 <script>
-    window.userWalletAddress = null
-    const loginButton = document.getElementById('loginButton')
-    const userWallet = document.getElementById('userWallet')
+    let walletAddress = localStorage.getItem("NFTMarketplace_WalletAddress")
+
+    if(walletAddress) {
+        userWallet.innerText = walletAddress
+        loginButton.innerText = 'Sign out of MetaMask'
+    } else {
+        window.userWalletAddress = null
+        const loginButton = document.getElementById('loginButton')
+        const userWallet = document.getElementById('userWallet')
+    }
 
     function toggleButton() {
         if (!window.ethereum) {
@@ -40,6 +47,7 @@
         }
 
         window.userWalletAddress = accounts[0]
+        localStorage.setItem("NFTMarketplace_WalletAddress", window.userWalletAddress)
         userWallet.innerText = window.userWalletAddress
         loginButton.innerText = 'Sign out of MetaMask'
 

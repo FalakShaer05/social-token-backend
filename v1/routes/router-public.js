@@ -46,5 +46,10 @@ module.exports = function RouterPublic(database, settings) {
     router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
     router.get("/history/:id", NFTToken.GetNFTHistory);
 
+    // Web Routes
+    router.get(`/store`, (req, res) => {
+        res.render('Store', {title:'NFT Store'})
+    });
+
     return router;
 };

@@ -9,21 +9,11 @@ const path = require("path");
 const mime = require("mime-types");
 const settings = require(`../../server-settings`);
 const fs = require("fs");
-
-const axios = require('axios');
 const {ethers} = require('ethers');
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
-const ipfs = create('https://ipfs.infura.io:5001/api/v0')
-// const ipfs = create({
-//     host: 'https://ipfs.infura.io',
-//     port: 5001,
-//     protocol: 'https',
-//     headers: {
-//         authorization: `Basic ${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret).toString('base64')}`
-//     }
-// })
+const ipfs = create(`https://${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret)}@ipfs.infura.io`)
 
 // Importing Artifacts Contracts
 const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
@@ -44,15 +34,6 @@ controller.createToken = async function (req, res) {
             const ipfsData = await ipfs.add(path)
             const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
 
-            const metaData = JSON.stringify({
-                name, description, image: ipfsUrl
-            })
-
-            const addingMarketData = await ipfs.add(metaData)
-            if (!addingMarketData) {
-                return res.status(400).json({success: false, message: "Something went wrong please try again later"});
-            }
-
             let saveAble = {
                 name,
                 description,
@@ -61,7 +42,6 @@ controller.createToken = async function (req, res) {
                 collection_id,
                 image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
                 share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
-                ipfsUrl: `https://ipfs.infura.io/ipfs/${addingMarketData.path}`,
                 user: req.user._id,
                 created_by: req.user._id,
                 category: category_id,
@@ -76,6 +56,19 @@ controller.createToken = async function (req, res) {
 
             let model = new NFTTokenModel(saveAble);
             await model.save();
+
+            const metaData = JSON.stringify({
+                name, description, image: ipfsUrl, id: model.id, collection: collection_id
+            })
+
+            const addingMarketData = await ipfs.add(metaData)
+            if (!addingMarketData) {
+                return res.status(400).json({success: false, message: "Something went wrong please try again later"});
+            }
+
+            let saveAblePath = `https://ipfs.infura.io/ipfs/${addingMarketData.path}`;
+            await NFTTokenModel.findByIdAndUpdate(model.id, {ipfsUrl: saveAblePath});
+
             model = await NFTTokenModel.findById(model.id).populate("category").exec();
             return res.status(200).json({
                 success: true,
@@ -99,8 +92,10 @@ controller.SellNFT = async function (req, res) {
         if (!nft.price)
             return res.status(400).json({success: false, message: "Price is required"});
 
+        let web3 = new web3(new web3.providers.WebsocketProvider('wss://palm-testnet.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780'));
+        let traderAddress = req.body.token;
+        
         const walletKey = req.body.walletKey;
-
 
         const provider = new ethers.providers.JsonRpcProvider(process.env.rpcProvider)
         const wallet = new ethers.Wallet(walletKey, provider);
@@ -221,10 +216,7 @@ controller.GetArt = async function (req, res) {
 
 controller.GetUserNFTTokens = async function (req, res) {
     try {
-
-
         const tokens = await NFTTokenModel.find({user: req.params.id});
-
         return res.status(200).json({
             success: true,
             message: "Token retrieved successfully",
@@ -267,28 +259,6 @@ controller.GetAllNFTTokens = async function (req, res) {
     }
 
     try {
-        const walletAddress = req.body.wallet_address
-        const provider = new ethers.providers.JsonRpcProvider(process.env.rpcProvider)
-        const signer = new ethers.VoidSigner(walletAddress, provider)
-
-        const marketContract = new ethers.Contract(process.env.nftmarketaddress, Market.abi, signer)
-        const tokenContract = new ethers.Contract(process.env.nftaddress, NFT.abi, provider)
-        const data = await marketContract.fetchMyNFT()
-
-        const items = await Promise.all(data.map(async i => {
-            const tokenUri = await tokenContract.tokenURI(i.tokenId)
-            const meta = await axios.get(tokenUri)
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-            let item = {
-                price,
-                tokenId: i.tokenId.toNumber(),
-                seller: i.seller,
-                owner: i.owner,
-                image: meta.data.image,
-            }
-            return item
-        }))
-
         let pageNumber = req.query.page;
         let limit = 20;
         let filter = {is_private: false};
@@ -322,7 +292,6 @@ controller.GetAllNFTTokens = async function (req, res) {
             success: true,
             message: "Token retrieved successfully",
             data: {next: pageNumber < numberOfPages ? true : false, tokens},
-            items: items
         });
     } catch (ex) {
         return res.status(502).json({

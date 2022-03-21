@@ -1,0 +1,21 @@
+<html>
+<head>
+    <title>
+        <%= title %>
+    </title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body class="flex w-screen h-screen justify-center items-center">
+    <script>
+        $(document).ready(function() {
+            fetch('tokens?page=1').then(function (response) {
+                response.text().then(function (data) {
+                    console.log(data);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

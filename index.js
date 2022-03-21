@@ -102,6 +102,11 @@ function startServer(db, dbConnectString) {
         res.send(welcome_message);
     });
 
+    // Test View
+    app.get(`/home`, (req, res) => {
+        res.render('Home', {title:'Wallet'})
+    });
+
     // Heard beat Route
     app.get(`/heartbeat`, (req, res) => res.sendStatus(200));
 
