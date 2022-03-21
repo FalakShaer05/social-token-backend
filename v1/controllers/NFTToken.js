@@ -13,7 +13,7 @@ const {ethers} = require('ethers');
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
-const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret}@ipfs.infura.io:5001/api/v0`)
+const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.InfuraIpfsProectSecret}@ipfs.infura.io:5001/api/v0`)
 
 // Importing Artifacts Contracts
 const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
@@ -23,7 +23,7 @@ const controller = {};
 
 controller.createToken = async function (req, res) {
     try {
-        console.log("Secrets", `${process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret}`);
+        console.log("Secrets", `${process.env.InfuraIpfsProectId + ":" + process.env.InfuraIpfsProectSecret}`);
         const {path} = req.file;
         const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
         if (!name || !description || !collection_id) {
