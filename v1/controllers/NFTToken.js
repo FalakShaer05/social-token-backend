@@ -13,7 +13,7 @@ const {ethers} = require('ethers');
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
-const ipfs = create(`https://${(process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret)}@ipfs.infura.io:5001/api/v0`)
+const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret}@ipfs.infura.io:5001/api/v0`)
 
 // Importing Artifacts Contracts
 const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
