@@ -8,7 +8,7 @@ const NFTToken = Schema({
     description: {type: String, required: false},
     image: {type: String, required: true},
     share_url: {type: String, required: false},
-    ipfsUrl: {type: String, required: true},
+    ipfsUrl: {type: String, required: false},
     price: {type: Number, required: true},
     tokenID: {type: String, required: false},
     views: {type: Number, required: false, default: 0},
