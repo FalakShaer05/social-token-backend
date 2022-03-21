@@ -32,7 +32,7 @@ controller.createToken = async function (req, res) {
 
         fs.readFile(path, 'utf8', async function (err, data) {
             if (err) throw err;
-            const ipfsData = await ipfs.add(path)
+            const ipfsData = await ipfs.add(data)
             const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
 
             let saveAble = {
