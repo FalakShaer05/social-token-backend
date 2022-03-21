@@ -23,6 +23,7 @@ const controller = {};
 
 controller.createToken = async function (req, res) {
     try {
+        console.log("Secrets", `${process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret}`);
         const {path} = req.file;
         const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
         if (!name || !description || !collection_id) {
