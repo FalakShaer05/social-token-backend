@@ -30,60 +30,53 @@ controller.createToken = async function (req, res) {
             return res.status(400).json({success: false, message: "Name, Description & Collection Id is required"});
         }
 
-        let nftLocalUrl = `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`;
-        const nftIpfsData = await ipfs.add(nftLocalUrl)
+        fs.readFile(path, 'utf8', async function (err, data) {
+            if (err) throw err;
+            const ipfsData = await ipfs.add(path)
+            const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
 
-        const ipfsUrl = `https://ipfs.infura.io/ipfs/${nftIpfsData.path}`
-
-        let saveAble = {
-            name,
-            description,
-            tags,
-            is_private: is_private,
-            collection_id,
-            image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
-            share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
-            user: req.user._id,
-            created_by: req.user._id,
-            category: category_id,
-            price: price,
-            is_traded: is_traded
-        };
-
-        const exist = await NFTTokenModel.find({name: saveAble.name, user: saveAble.user});
-        if (exist.length > 0) {
-            return res.status(400).json({success: false, message: "NFT with same name already exist"});
-        }
-
-        let model = new NFTTokenModel(saveAble);
-        await model.save();
-
-        const metaData = JSON.stringify({
-            name, description, image: ipfsUrl, id: model.id, collection: collection_id
-        })
-
-        const addingMarketData = await ipfs.add(metaData)
-        if (!addingMarketData) {
-            return res.status(400).json({success: false, message: "Something went wrong please try again later"});
-        }
-
-        let saveAblePath = `https://ipfs.infura.io/ipfs/${addingMarketData.path}`;
-        await NFTTokenModel.findByIdAndUpdate(model.id, {ipfsUrl: saveAblePath});
-
-        model = await NFTTokenModel.findById(model.id).populate("category").exec();
-        return res.status(200).json({
-            success: true,
-            message: "Token saved successfully",
-            data: model
+            let saveAble = {
+                name,
+                description,
+                tags,
+                is_private: is_private,
+                collection_id,
+                image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+                share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
+                user: req.user._id,
+                created_by: req.user._id,
+                category: category_id,
+                price: price,
+                is_traded: is_traded
+            };
+    
+            const exist = await NFTTokenModel.find({name: saveAble.name, user: saveAble.user});
+            if (exist.length > 0) {
+                return res.status(400).json({success: false, message: "NFT with same name already exist"});
+            }
+    
+            let model = new NFTTokenModel(saveAble);
+            await model.save();
+    
+            const metaData = JSON.stringify({
+                name, description, image: ipfsUrl, id: model.id, collection: collection_id
+            })
+    
+            const addingMarketData = await ipfs.add(metaData)
+            if (!addingMarketData) {
+                return res.status(400).json({success: false, message: "Something went wrong please try again later"});
+            }
+    
+            let saveAblePath = `https://ipfs.infura.io/ipfs/${addingMarketData.path}`;
+            await NFTTokenModel.findByIdAndUpdate(model.id, {ipfsUrl: saveAblePath});
+    
+            model = await NFTTokenModel.findById(model.id).populate("category").exec();
+            return res.status(200).json({
+                success: true,
+                message: "Token saved successfully",
+                data: model
+            });
         });
-
-        // fs.readFile(path, 'utf8', async function (err, data) {
-        //     if (err) throw err;
-        //     const ipfsData = await ipfs.add(path)
-        //     const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
-
-            
-        // });
     } catch (ex) {
         console.log(ex);
         return res.status(500).json({
