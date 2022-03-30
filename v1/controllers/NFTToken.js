@@ -84,7 +84,6 @@ controller.createToken = async function (req, res) {
     }
 };
 
-
 controller.SellNFT = async function (req, res) {
     try {
         let nft = await NFTTokenModel.findById(req.params.id);
