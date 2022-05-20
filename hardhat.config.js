@@ -8,12 +8,12 @@ module.exports = {
         hardhat: {
             chainId: 1337
         },
-        mumbai: {
-            url: "https://rpc-mumbai.maticvigil.com",
+        rinkeby: {
+            url: "https://rinkeby.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780",
             accounts: [privateKey]
         },
         mainnet: {
-            url: "https://rpc-mainnet.matic.network",
+            url: "https://mainnet.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780",
             accounts: [privateKey]
         }
     },
