@@ -8,14 +8,14 @@ module.exports = {
         hardhat: {
             chainId: 1337
         },
-        rinkeby: {
-            url: "https://rinkeby.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780",
+        ropsten: {
+            url: "https://ropsten.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780",
             accounts: [privateKey]
         },
         mainnet: {
             url: "https://mainnet.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780",
             accounts: [privateKey]
-        }
+        },
     },
     solidity: {
         version: "0.8.4",
