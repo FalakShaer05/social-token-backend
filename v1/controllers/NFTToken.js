@@ -10,15 +10,13 @@ const mime = require("mime-types");
 const settings = require(`../../server-settings`);
 const fs = require("fs");
 const {ethers} = require('ethers');
-const rpcurl = "http://127.0.0.1:8545/"
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
 const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.InfuraIpfsProectSecret}@ipfs.infura.io:5001/api/v0`)
 
 // Importing Artifacts Contracts
-//const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
-//const Market = require('../../artifacts/contracts/NFTMarket.sol/NFTMarket.json')
+// const Market = require('../../artifacts/contracts/SocialNFT.sol/SocialNFT.json')
 
 const controller = {};
 
@@ -87,106 +85,35 @@ controller.createToken = async function (req, res) {
 
 
 controller.SellNFT = async function (req, res) {
-    //try {
-        /*let nft = await NFTTokenModel.findById(req.params.id);
-        if (!nft)
-            return res.status(404).json({success: false, message: "Found nothing for minting "});
-        if (!nft.price)
-            return res.status(400).json({success: false, message: "Price is required"});
+    try {
+        if (!req.body.walletAddress)
+            return res.status(400).json({success: false, message: "Wallet Address is required"});
+        if (!req.body.walletKey)
+            return res.status(400).json({success: false, message: "Wallet Key is required"});
 
-        let web3 = new web3(new web3.providers.WebsocketProvider('wss://palm-testnet.infura.io/v3/8031b681fe9f440ba9dedc43c6d3e780'));
-        let traderAddress = req.body.token;
-        
-        const walletKey = req.body.walletKey;
+        let nft = await NFTTokenModel.findById(req.params.id);
+        if (!nft)
+            return res.status(404).json({success: false, message: "Mintable Not Found"});
 
         const provider = new ethers.providers.JsonRpcProvider(process.env.rpcProvider)
-        const wallet = new ethers.Wallet(walletKey, provider);
-        const price = ethers.utils.parseUnits((nft.price).toString(), 'ether');
-        const balancePromise = wallet.getBalance();
-        let availableBalance = 0;
 
-        await balancePromise.then((balance) => {
-            availableBalance = balance
-        });
+        const ERC721_ABI = [
+            "function safeMint(address to , string memory uri) public"
+        ]
+        const contract = new ethers.Contract(process.env.nftmarketaddress, ERC721_ABI, provider)
+        const wallet = new ethers.Wallet(req.body.walletKey, provider)
 
-        if (price > availableBalance && availableBalance === 0) {
-            return res.status(400).json({success: false, message: "Insufficient funds, Please recharge your wallet before transcation"});
+        const contractWithWallet = contract.connect(wallet)
+        const mint = await contractWithWallet.safeMint(req.body.walletAddress, nft.ipfsUrl)
+
+        if(!mint) {
+            return res.status(502).json({success: false, message: "something went wrong"});
         }
-
-        let contract = new ethers.Contract(process.env.nftaddress, NFT.abi, wallet);
-        let transaction = await contract.createToken(nft.ipfsUrl)
-        let tx = await transaction.wait()
-        let event = tx.events[0]
-        let value = event.args[2]
-        let tokenId = value.toNumber()
-
-        contract = new ethers.Contract(process.env.nftmarketaddress, Market.abi, wallet)
-        let listingFee = await contract.getlistingFee()
-        listingFee = listingFee.toString()
-
-        transaction = await contract.createMarketItem(process.env.nftaddress, tokenId, price, {value: listingFee})
-        await transaction.wait()
-
-        let transactionSaveAble = {
-            tokenId: nft._id,
-            nftTokenId: tokenId,
-            transaction: transaction,
-            transaction_type: 'minted'
-        };
-
-        const transactionHistory = new nftTransactionsModel(transactionSaveAble);
-        await transactionHistory.save();
-
-        nft.is_private = false;
-        nft.tokenID = tokenId;
-        nft.transaction = transactionHistory._id;
-        await nft.save();
-
-        return res.status(200).json({success: true, message: `${nft.name} nft is now public`});*/
-        
-        try {
-            const provider = new ethers.providers.JsonRpcProvider(rpcurl)
-
-            const ERC721_ABI = [
-                "function safeMint(address to , uint256 tokenId, string memory uri) public"
-            ]
-    
-            const contractAddress = " 0x5FbDB2315678afecb367f032d93F642f64180aa3"
-            const contract = new ethers.Contract(contractAddress,ERC721_ABI,provider)
-    
-            const wallet = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",provider)
-            console.log(wallet.address)
-            const contractWithWallet = contract.connect(wallet)
-            const newmint = contractWithWallet.safeMint("0x5FbDB2315678afecb367f032d93F642f64180aa3","001","https://www.google.com")
-
-            return res.status(200).json({success: true});
-        } catch(ex){
-            console.log(ex)
-            return res.status(502).json({success: false, message: ex.message});
-        }
-        
-        
-
-        
-
-        
-        /*try{
-        const mintToken = await contractWithWallet.safeMint("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80","0002","https://www.yahoo.com")
-
-        console.log(mintToken)
-
-        //const totalSupply = contractWithWallet.totalSupply()
-
-            res.send(contractWithWallet)
-        } catch(err){
-            res.send(err)
-        }*/
-
-    /*} catch (ex) {
+        return res.status(200).json({success: true, message: `${nft.name} nft is now public`, data: mint});
+    } catch(ex){
         console.log(ex)
         return res.status(502).json({success: false, message: ex.message});
-    }*/
-
+    }
 };
 
 controller.GetToken = async function (req, res) {
