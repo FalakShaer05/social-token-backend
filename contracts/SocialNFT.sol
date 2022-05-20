@@ -12,6 +12,18 @@ contract SocialNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
+    mapping(uint => uint) orderBook;
+
+    event TokenListed(
+        uint indexed _tokenId,
+        uint indexed _price
+    );
+    
+    event TokenSold(
+        uint indexed _tokenId,
+        uint indexed _price
+    );
+
     constructor() ERC721("SocialNFT", "SNT") {}
 
     function safeMint(address to, string memory uri) public {
@@ -35,4 +47,14 @@ contract SocialNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     {
         return super.tokenURI(tokenId);
     }
+
+    function listToken(uint _tokenId, uint _price) public {
+        address owner = token.ownerOf(_tokenId);
+        require(owner == msg.sender, "caller is not owner");
+        //require(token.isApprovedForAll(owner, address(this)));
+
+        orderBook[_tokenId] = _price;
+        emit TokenListed(_tokenId, _price);
+    }
+ 
 }
