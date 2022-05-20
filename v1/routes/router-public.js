@@ -29,6 +29,7 @@ module.exports = function RouterPublic(database, settings) {
 
     // NFT
     router.route(`/token/:tokenID`).get(NFTToken.GetToken);
+    router.post("/trade", NFTToken.SellNFT);
 
     //Web3
     router.route(`/web3/home`).get(Web3.HomeFunction);

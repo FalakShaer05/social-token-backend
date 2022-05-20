@@ -10,14 +10,15 @@ const mime = require("mime-types");
 const settings = require(`../../server-settings`);
 const fs = require("fs");
 const {ethers} = require('ethers');
+const rpcurl = "http://127.0.0.1:8545/"
 
 // Preparing IPFS Client
 const {create} = require('ipfs-http-client')
 const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.InfuraIpfsProectSecret}@ipfs.infura.io:5001/api/v0`)
 
 // Importing Artifacts Contracts
-const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
-const Market = require('../../artifacts/contracts/NFTMarket.sol/NFTMarket.json')
+//const NFT = require('../../artifacts/contracts/NFT.sol/NFT.json')
+//const Market = require('../../artifacts/contracts/NFTMarket.sol/NFTMarket.json')
 
 const controller = {};
 
@@ -86,8 +87,8 @@ controller.createToken = async function (req, res) {
 
 
 controller.SellNFT = async function (req, res) {
-    try {
-        let nft = await NFTTokenModel.findById(req.params.id);
+    //try {
+        /*let nft = await NFTTokenModel.findById(req.params.id);
         if (!nft)
             return res.status(404).json({success: false, message: "Found nothing for minting "});
         if (!nft.price)
@@ -141,11 +142,51 @@ controller.SellNFT = async function (req, res) {
         nft.transaction = transactionHistory._id;
         await nft.save();
 
-        return res.status(200).json({success: true, message: `${nft.name} nft is now public`});
-    } catch (ex) {
+        return res.status(200).json({success: true, message: `${nft.name} nft is now public`});*/
+        
+        try {
+            const provider = new ethers.providers.JsonRpcProvider(rpcurl)
+
+            const ERC721_ABI = [
+                "function safeMint(address to , uint256 tokenId, string memory uri) public"
+            ]
+    
+            const contractAddress = " 0x5FbDB2315678afecb367f032d93F642f64180aa3"
+            const contract = new ethers.Contract(contractAddress,ERC721_ABI,provider)
+    
+            const wallet = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",provider)
+            console.log(wallet.address)
+            const contractWithWallet = contract.connect(wallet)
+            const newmint = contractWithWallet.safeMint("0x5FbDB2315678afecb367f032d93F642f64180aa3","001","https://www.google.com")
+
+            return res.status(200).json({success: true});
+        } catch(ex){
+            console.log(ex)
+            return res.status(502).json({success: false, message: ex.message});
+        }
+        
+        
+
+        
+
+        
+        /*try{
+        const mintToken = await contractWithWallet.safeMint("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80","0002","https://www.yahoo.com")
+
+        console.log(mintToken)
+
+        //const totalSupply = contractWithWallet.totalSupply()
+
+            res.send(contractWithWallet)
+        } catch(err){
+            res.send(err)
+        }*/
+
+    /*} catch (ex) {
         console.log(ex)
         return res.status(502).json({success: false, message: ex.message});
-    }
+    }*/
+
 };
 
 controller.GetToken = async function (req, res) {
