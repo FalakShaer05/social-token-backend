@@ -1,10 +1,15 @@
 const hre = require("hardhat");
 
 async function main() {
-    const SocialNFT = await hre.ethers.getContractFactory("SocialNFT");
-    const socialnft = await SocialNFT.deploy();
-    await socialnft.deployed();
-    console.log("nftMarket deployed to:", socialnft.address);
+    const _ERC721A = await hre.ethers.getContractFactory("ERC721A");
+    const _ERC721Ad = await _ERC721A.deploy();
+    await _ERC721Ad.deployed();
+    console.log("nftMarket deployed to:", _ERC721Ad.address);
+
+    const _Context = await hre.ethers.getContractFactory("Context");
+    const _Contextd = await _Context.deploy();
+    await _Contextd.deployed();
+    console.log("nftMarket deployed to:", _Contextd.address);
 }
 
 main()
