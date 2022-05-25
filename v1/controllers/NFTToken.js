@@ -382,4 +382,39 @@ controller.BuyNFT = async function (req, res) {
     }
 };
 
+controller.UploadToIPFS = async function (req, res) {
+    try {
+        const {path} = req.file;
+        const {name, description} = req.body;
+        if (!name || !description) {
+            return res.status(400).json({success: false, message: "Name, Description are required"});
+        }
+
+        fs.readFile(path, 'utf8', async function (err, data) {
+            if (err) throw err;
+            const ipfsData = await ipfs.add(data)
+            const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
+
+            const metaData = JSON.stringify({
+                name, description, image: ipfsUrl
+            })
+    
+            const addingMarketData = await ipfs.add(metaData)
+            if (!addingMarketData) {
+                return res.status(400).json({success: false, message: "Something went wrong please try again later"});
+            }
+    
+            let IPFSURL = `https://ipfs.infura.io/ipfs/${addingMarketData.path}`;
+
+            return res.status(200).json({
+                success: true,
+                message: "Token saved successfully",
+                url: IPFSURL
+            });
+        });
+    } catch (ex) {
+        return res.status(502).json({success: false, message: ex.message});
+    }
+};
+
 module.exports = controller;
