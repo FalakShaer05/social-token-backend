@@ -1,3 +1,6 @@
+const e = require("express");
+const CountriesModal = require("./models/Countries");
+
 const controller = {};
 
 controller.generateRandomPassword = async function (count) {
@@ -20,4 +23,29 @@ controller.generateCode = async function (count) {
   }
   return randomString;
 };
+
+controller.getCountries = async function (req, res) {
+  try {
+    const countries = await CountriesModal.find();
+    if(countries.length > 0) {
+      return res.status(200).send({
+        success: true,
+        message: "Countries list",
+        data: countries
+      });
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: "Data not found",
+        data: countries
+      });
+    }
+  } catch (ex) {
+    return res.status(500).send({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
 module.exports = controller;

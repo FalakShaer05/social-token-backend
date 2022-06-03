@@ -6,6 +6,7 @@ const Web3 = require(`../controllers/Web3`);
 const upload = require("../config/uploadConfig");
 const Category = require("../controllers/Category");
 const Collections = require("../controllers/Collections");
+const Common = require("../controllers/Common");
 const authentication = require("../middleware/validateJWT");
 
 module.exports = function RouterPublic(database, settings) {
@@ -46,6 +47,9 @@ module.exports = function RouterPublic(database, settings) {
     router.get("/collections", Collections.GetCollections);
     router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
     router.get("/history/:id", NFTToken.GetNFTHistory);
+
+    // Public Routes
+    router.route("/countries").get(Common.getCountries);
 
     // Web Routes
     router.get(`/store`, (req, res) => {
