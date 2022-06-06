@@ -54,6 +54,8 @@ controller.AddUser = async function (req, res) {
       res.json(resp);
     })
     .catch(ex => {
+      console.log(ex);
+      
       let resp = {
         success: false,
         message: "error"
