@@ -9,7 +9,7 @@ const Users = Schema({
     email: {type: String, required: true, unique: true},
     username: {type: String, required: true, unique: true},
     password: {type: String, required: false},
-    picture: {type: String, default: `admin-profile-pic.png`},
+    picture: {type: String, default: `https://apis.socialtokennft.com/v1/digital-assets/63f63d6cc221274e6cab7a708d79fc17.png`},
     is_deleted: {type: Boolean, default: false},
     is_wallet_connected: {type: Boolean, default: false},
     wallet_auth_token: {type: String, required: false},
