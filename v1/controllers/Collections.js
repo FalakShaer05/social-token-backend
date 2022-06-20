@@ -68,6 +68,7 @@ controller.createCollection = async function (req, res) {
       data: collection
     });
   } catch (ex) {
+    console.log(ex)
     return res.status(502).json({
       success: false,
       message: ex.message
