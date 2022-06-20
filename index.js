@@ -33,9 +33,6 @@ const port = process.env.PORT || settings.server.port || 3000;
 process.env.NODE_ENV !== `development` && (console.log = () => null);
 
 app.use((req, res, next) => {
-    // if (req._parsedUrl.pathname.includes(`users`)) {
-    //   console.log(req);
-    // }
     res.setHeader(`Access-Control-Allow-Origin`, "*");
     res.setHeader(`Access-Control-Allow-Methods`, `GET, POST, OPTIONS, PUT, PATCH, DELETE, OPTIONS`);
     res.setHeader(`Access-Control-Expose-Headers`, `Content-Length, X-JSON`);
@@ -53,8 +50,8 @@ app.set('view engine', 'ejs')
 
 function startServer(db, dbConnectString) {
     app.use(cookieParser(`${settings.server.name} SessionSecret`));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
+    app.use(bodyParser.json({limit:'50mb'}));
+    app.use(bodyParser.urlencoded({extended: true, limit:'50mb'}));
     app.use(
         session({
             store: MongoStore.create({mongoUrl: dbConnectString}),
