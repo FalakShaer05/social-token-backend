@@ -6,20 +6,23 @@ const Category = require("../controllers/Category");
 const authentication = require("../middleware/validateJWT");
 const upload = require("../config/uploadConfig");
 const CollectionMulerSettings = upload.fields([
-    {name: `thumbnail_image`, maxCount: 1},
-    {name: `timeline_image`, maxCount: 1}
+  { name: `thumbnail_image`, maxCount: 1 },
+  { name: `timeline_image`, maxCount: 1 },
 ]);
 
 module.exports = function RouterPrivate(database, settings) {
-    router.use(authentication.authenticate);
+  router.use(authentication.authenticate);
 
-    // Collections
-    router.get("/collections", Collections.GetAll);
-    router.post("/collections", CollectionMulerSettings, Collections.Create);
+  // Collections
+  router.get("/collections", Collections.GetAll);
+  router.post("/collections", CollectionMulerSettings, Collections.Create);
 
-    // Category
-    router.route("/category").post(Category.createCategory);
-    router.route("/category/:id").put(Category.updateCollection).delete(Category.DeleteCategory);
+  // Category
+  router.get("/category", Category.GetAllCategories);
+  router.get("/category/:id", Category.GetCategory);
+  router.post("/category", Category.createCategory);
+  // router.put("/category/:id", Category.updateCategory);
+  router.delete("/category/:id", Category.DeleteCategory);
 
-    return router;
+  return router;
 };
