@@ -40,8 +40,6 @@ controller.Create = async function (req, res) {
       created_by: req.body.created_by,
     };
 
-    return res.status(200).json({ success: true, message: "Hello", data: data });
-
     const exist = await CollectionModel.find({ created_by: req.user._id, name: data.name });
     if (exist.length > 0) {
       return res.status(400).json({ success: false, message: "Collection already exist" });
