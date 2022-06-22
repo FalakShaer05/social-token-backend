@@ -22,7 +22,7 @@ module.exports = function RouterPublic(database, settings) {
     router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
 
     // Media Arts
-    router.route(`/digital-assets/:id`).get(Common.GetArt);
+    router.route(`/digital-assets/:artID`).get(Common.GetArt);
 
     // Common
     router.route("/countries").get(Common.getCountries);
