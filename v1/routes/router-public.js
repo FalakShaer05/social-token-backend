@@ -13,6 +13,7 @@ module.exports = function RouterPublic(database, settings) {
     const db = database;
     const auth = _auth();
 
+    // Auth
     router.get(`/login`, auth.isUserAuthenticated, async (req, res) => {
         res.status(200).json({
             success: true,
@@ -20,41 +21,35 @@ module.exports = function RouterPublic(database, settings) {
             data: req.user
         });
     });
-
-    // Users
     router.route(`/signup`).post(users.AddUser);
     router.route(`/upload/:id`).post(upload.single("img"), users.uploadImage);
     router.route(`/forget-password`).post(users.ForgetPassword);
     router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
 
 
+
+
     // NFT
-    router.route(`/token/:tokenID`).get(NFTToken.GetToken);
-    router.post("/ipfs", upload.single("img"), NFTToken.UploadToIPFS);
+    // router.route(`/token/:tokenID`).get(NFTToken.GetToken);
+    // router.post("/ipfs", upload.single("img"), NFTToken.UploadToIPFS);
 
     //Web3
-    router.route(`/web3/home`).get(Web3.HomeFunction);
+    // router.route(`/web3/home`).get(Web3.HomeFunction);
 
     // NFT
-    router.route(`/get-token/:id`).get(NFTToken.GetToken);
+    // router.route(`/get-token/:id`).get(NFTToken.GetToken);
 
     // Media Arts
     router.route(`/digital-assets/:id`).get(NFTToken.GetArt);
 
-    router.route("/category").get(Category.GetAllCategories);
-    router.route("/category/:id").get(Category.GetCategory);
+    // router.route("/category").get(Category.GetAllCategories);
+    // router.route("/category/:id").get(Category.GetCategory);
 
-    router.get("/collections", Collections.GetCollections);
-    router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
-    router.get("/history/:id", NFTToken.GetNFTHistory);
+    // router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
+    // router.get("/history/:id", NFTToken.GetNFTHistory);
 
     // Public Routes
     router.route("/countries").get(Common.getCountries);
-
-    // Web Routes
-    router.get(`/store`, (req, res) => {
-        res.render('Store', {title:'NFT Store'})
-    });
 
     return router;
 };

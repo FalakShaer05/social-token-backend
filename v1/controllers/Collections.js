@@ -37,24 +37,40 @@ controller.GetArt = async function (req, res) {
   }
 };
 
-controller.createCollection = async function (req, res) {
+controller.GetAll = async function (req, res) {
+  try {
+    if(!req.user){
+      return res.status(404).json({success: false, message: "User object not found"});
+    }
+
+    let collections = await CollectionModel.find({created_by: req.user._id}).exec();
+    return res.status(200).json({
+      success: true,
+      message: "Collections retrieved successfully",
+      data: collections
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: "error"
+    });
+  }
+};
+
+controller.Create = async function (req, res) {
   try {
     const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
-    const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
     let data = {
       name: req.body.collection_name,
       description: req.body.description,
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
-      user: req.body.user,
-      created_by: req.body.user,
-      category: req.body.category,
-      is_private: req.body.is_private,
-      share_url: share_url
+      category_id: req.body.category_id,
+      created_by: req.body.created_by,
     };
 
-    const exist = await CollectionModel.find({ user: req.user._id, name: data.name });
+    const exist = await CollectionModel.find({ created_by: req.user._id, name: data.name });
     if (exist.length > 0) {
       return res.status(400).json({ success: false, message: "Collection already exist" });
     }
@@ -69,47 +85,6 @@ controller.createCollection = async function (req, res) {
     });
   } catch (ex) {
     console.log(ex)
-    return res.status(502).json({
-      success: false,
-      message: ex.message
-    });
-  }
-};
-
-controller.seedCollection = async function (req, res) {
-  try {
-    if (req.query.delete_previous) {
-      await CollectionModel.collection.drop();
-    }
-
-    const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
-    const timeline_image = `${settings.server.serverURL}/${req.files["timeline_image"][0].path.replace(/\\/g, "/")}`;
-    const share_url = `${settings.server.siteURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
-    const categories = await categorymodel.find();
-    for (let i = 1; i <= 10; i++) {
-      for (const category of categories) {
-        let data = {
-          name: `test collection ${i} ${category.name}`,
-          thumbnail_image: thumbnail_image,
-          timeline_image: timeline_image,
-          description: `test collection ${i} ${category.name}`,
-          user: req.user._id,
-          created_by: req.user._id,
-          category: category._id,
-          is_private: false,
-          share_url: share_url
-        };
-
-        const collection = new CollectionModel(data);
-        await collection.save();
-      }
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Seed success"
-    });
-  } catch (ex) {
     return res.status(502).json({
       success: false,
       message: ex.message
@@ -174,68 +149,6 @@ controller.GetCollectionDetail = async function (req, res) {
   }
 };
 
-controller.GetCollections = async function (req, res) {
-  if (req.query.is_trending) {
-    try {
-      let limit = 20;
-      let filter = { is_private: false };
-      if (req.query.category) {
-        filter.category = req.query.category;
-      }
 
-      if (req.query.name) {
-        filter.name = { $regex: req.query.name };
-      }
-
-      let collections = await CollectionModel.find(filter).limit(limit);
-
-      return res.status(200).json({
-        success: true,
-        message: "Trending collections retrieved successfully",
-        data: { next: false, collections }
-      });
-    } catch (ex) {
-      return res.status(502).json({
-        success: false,
-        message: "error"
-      });
-    }
-  }
-
-  try {
-    let pageNumber = req.query.page;
-    let limit = 20;
-    let filter = { is_private: false };
-    if (req.query.user) {
-      filter.user = req.query.user;
-    }
-
-    if (req.query.category) {
-      filter.category = req.query.category;
-    }
-
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name };
-    }
-
-    let collections = await CollectionModel.find(filter)
-      .skip(pageNumber > 0 ? (pageNumber - 1) * limit : 0)
-      .limit(limit);
-
-    let numberOfPages = await CollectionModel.count(filter);
-    numberOfPages = Math.ceil(numberOfPages / limit);
-
-    return res.status(200).json({
-      success: true,
-      message: "Collections retrieved successfully",
-      data: { next: pageNumber < numberOfPages ? true : false, collections }
-    });
-  } catch (ex) {
-    return res.status(502).json({
-      success: false,
-      message: "error"
-    });
-  }
-};
 
 module.exports = controller;
