@@ -44,7 +44,7 @@ controller.Create = async function (req, res) {
                 price: 0
             };
     
-            const is_exist = await NFTTokenModel.find({name: data.name, created_by: data.user});
+            const is_exist = await NFTTokenModel.find({name: data.name, created_by: data.created_by});
             if (is_exist.length > 0) {
                 return res.status(400).json({success: false, message: "NFT with same name already exist"});
             }
