@@ -1,10 +1,10 @@
 const router = require(`express`).Router();
 const NFTToken = require(`../controllers/NFTToken`);
 const Collections = require(`../controllers/Collections`);
-const User = require("../controllers/Users");
 const Category = require("../controllers/Category");
 const authentication = require("../middleware/validateJWT");
 const upload = require("../config/uploadConfig");
+
 const CollectionMulerSettings = upload.fields([
   { name: `thumbnail_image`, maxCount: 1 },
   { name: `timeline_image`, maxCount: 1 },
@@ -22,8 +22,10 @@ module.exports = function RouterPrivate(database, settings) {
   router.get("/category", Category.GetAllCategories);
   router.get("/category/:id", Category.GetCategory);
   router.post("/category", Category.createCategory);
-  // router.put("/category/:id", Category.updateCategory);
   router.delete("/category/:id", Category.DeleteCategory);
+
+  // Art
+  router.post("/nft", upload.single("mintable_art"), NFTToken.Create);
 
   return router;
 };

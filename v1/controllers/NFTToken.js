@@ -15,64 +15,60 @@ const {ethers} = require('ethers');
 const {create} = require('ipfs-http-client')
 const ipfs = create(`https://${process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret}@ipfs.infura.io:5001/api/v0`)
 
-// Importing Artifacts Contracts
-// const Market = require('../../artifacts/contracts/SocialNFT.sol/SocialNFT.json')
-
 const controller = {};
 
-controller.createToken = async function (req, res) {
+controller.Create = async function (req, res) {
     try {
         const {path} = req.file;
-        const {name, description, tags, collection_id, category_id, is_private, price, is_traded} = req.body;
+        const {name, description, external_link, collection_id, is_private, is_traded} = req.body;
+        
         if (!name || !description || !collection_id) {
             return res.status(400).json({success: false, message: "Name, Description & Collection Id is required"});
         }
 
-        fs.readFile(path, 'utf8', async function (err, data) {
+        fs.readFile(path, 'utf8', async function (err, file) {
             if (err) throw err;
-            const ipfsData = await ipfs.add(data)
+            const ipfsData = await ipfs.add(file)
             const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`
 
-            let saveAble = {
+            let data = {
                 name,
                 description,
-                tags,
-                is_private: is_private,
+                external_link,
                 collection_id,
-                image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
-                share_url: `${settings.server.siteURL}/${path.replace(/\\/g, "/")}`,
-                user: req.user._id,
+                is_private: is_private,
+                is_traded: is_traded,
+                mintable: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+                ipfsUrl: "",
                 created_by: req.user._id,
-                category: category_id,
-                price: price,
-                is_traded: is_traded
+                price: 0
             };
     
-            const exist = await NFTTokenModel.find({name: saveAble.name, user: saveAble.user});
-            if (exist.length > 0) {
+            const is_exist = await NFTTokenModel.find({name: data.name, created_by: data.user});
+            if (is_exist.length > 0) {
                 return res.status(400).json({success: false, message: "NFT with same name already exist"});
             }
     
-            let model = new NFTTokenModel(saveAble);
+            let model = new NFTTokenModel(data);
             await model.save();
     
-            const metaData = JSON.stringify({
-                name, description, image: ipfsUrl, id: model.id, collection: collection_id
+            const NFTMetaData = JSON.stringify({
+                name, description, external_link, image: ipfsUrl
             })
     
-            const addingMarketData = await ipfs.add(metaData)
-            if (!addingMarketData) {
+            const resp = await ipfs.add(NFTMetaData)
+            if (!resp) {
                 return res.status(400).json({success: false, message: "Something went wrong please try again later"});
             }
     
-            let saveAblePath = `https://ipfs.infura.io/ipfs/${addingMarketData.path}`;
-            await NFTTokenModel.findByIdAndUpdate(model.id, {ipfsUrl: saveAblePath});
+            let IPFS_PATH = `https://ipfs.infura.io/ipfs/${resp.path}`;
+            await NFTTokenModel.findByIdAndUpdate(model.id, {ipfsUrl: IPFS_PATH});
     
-            model = await NFTTokenModel.findById(model.id).populate("category").exec();
+            let result = await NFTTokenModel.findById(model.id).populate("collection_id").exec();
             return res.status(200).json({
                 success: true,
                 message: "Token saved successfully",
-                data: model
+                data: result
             });
         });
     } catch (ex) {
@@ -82,7 +78,6 @@ controller.createToken = async function (req, res) {
         });
     }
 };
-
 
 controller.SellNFT = async function (req, res) {
     try {
