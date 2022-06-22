@@ -1,5 +1,6 @@
 const CollectionModel = require(`./models/CollectionModel`);
 const NFTTokenModel = require("./models/NFTTokenModel");
+const categoryModel = require("./models/CategoryModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
@@ -13,7 +14,7 @@ controller.GetAll = async function (req, res) {
       return res.status(404).json({success: false, message: "User object not found"});
     }
 
-    let collections = await CollectionModel.find({created_by: req.user._id}).populate("category").exec();
+    let collections = await CollectionModel.find({created_by: req.user._id}).populate("category_id").exec();
     return res.status(200).json({
       success: true,
       message: "Collections retrieved successfully",
