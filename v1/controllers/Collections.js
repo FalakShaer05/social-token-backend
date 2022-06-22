@@ -1,41 +1,11 @@
 const CollectionModel = require(`./models/CollectionModel`);
 const NFTTokenModel = require("./models/NFTTokenModel");
-const categorymodel = require("./models/CategoryModel");
 const fileSystem = require("fs");
 const path = require("path");
 const mime = require("mime-types");
 const settings = require("../../server-settings.json");
 
 const controller = {};
-
-controller.GetArt = async function (req, res) {
-  const artID = req.params.artID;
-  try {
-    if (!artID) {
-      return res.status(400).send({
-        success: false,
-        message: "Art id is a required parameter"
-      });
-    }
-
-    let filePath = path.resolve(__dirname, `../digital-assets/${artID}`);
-    let stat = fileSystem.statSync(filePath);
-
-    res.writeHead(200, {
-      "Content-Type": mime.lookup(filePath),
-      "Content-Length": stat.size
-    });
-
-    let readStream = fileSystem.createReadStream(filePath);
-    readStream.pipe(res);
-  } catch (ex) {
-    console.log(ex);
-    return res.status(500).send({
-      success: false,
-      message: "error"
-    });
-  }
-};
 
 controller.GetAll = async function (req, res) {
   try {
@@ -92,7 +62,7 @@ controller.Create = async function (req, res) {
   }
 };
 
-controller.updateCollection = async function (req, res) {
+controller.Update = async function (req, res) {
   try {
     let record = await CollectionModel.findById(req.params.id);
     const thumbnail_image = `${settings.server.serverURL}/${req.files["thumbnail_image"][0].path.replace(/\\/g, "/")}`;
@@ -122,7 +92,7 @@ controller.updateCollection = async function (req, res) {
   }
 };
 
-controller.GetCollectionDetail = async function (req, res) {
+controller.GetOne = async function (req, res) {
   try {
     let collection = await CollectionModel.findById(req.params.id).lean();
     let nfts = await NFTTokenModel.find({ collection_id: collection._id });

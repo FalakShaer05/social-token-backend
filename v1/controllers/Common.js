@@ -1,4 +1,7 @@
 const e = require("express");
+const fileSystem = require("fs");
+const path = require("path");
+const mime = require("mime-types");
 const CountriesModal = require("./models/Countries");
 
 const controller = {};
@@ -44,6 +47,35 @@ controller.getCountries = async function (req, res) {
     return res.status(500).send({
       success: false,
       message: ex.message
+    });
+  }
+};
+
+controller.GetArt = async function (req, res) {
+  const artID = req.params.artID;
+  try {
+    if (!artID) {
+      return res.status(400).send({
+        success: false,
+        message: "Art id is a required parameter"
+      });
+    }
+
+    let filePath = path.resolve(__dirname, `../digital-assets/${artID}`);
+    let stat = fileSystem.statSync(filePath);
+
+    res.writeHead(200, {
+      "Content-Type": mime.lookup(filePath),
+      "Content-Length": stat.size
+    });
+
+    let readStream = fileSystem.createReadStream(filePath);
+    readStream.pipe(res);
+  } catch (ex) {
+    console.log(ex);
+    return res.status(500).send({
+      success: false,
+      message: "error"
     });
   }
 };
