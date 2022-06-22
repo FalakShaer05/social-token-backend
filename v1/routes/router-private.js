@@ -16,6 +16,7 @@ module.exports = function RouterPrivate(database, settings) {
   // Collections
   router.get("/collections", Collections.GetAll);
   router.post("/collections", CollectionMulerSettings, Collections.Create);
+  router.delete("/collections/:id", Collections.Delete);
 
   // Category
   router.get("/category", Category.GetAllCategories);

@@ -120,6 +120,22 @@ controller.GetOne = async function (req, res) {
   }
 };
 
+controller.Delete = async function (req, res) {
+  try {
+    let category = await CollectionModel.findByIdAndDelete(req.params.id);
+    return res.status(200).json({
+      success: true,
+      message: "Collection deleted"
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
+
 
 
 module.exports = controller;
