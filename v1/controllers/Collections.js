@@ -123,10 +123,19 @@ controller.GetOne = async function (req, res) {
 controller.Delete = async function (req, res) {
   try {
     let category = await CollectionModel.findByIdAndDelete(req.params.id);
-    return res.status(200).json({
-      success: true,
-      message: "Collection deleted"
-    });
+    if(category) {
+      let collections = await CollectionModel.find({created_by: req.user._id}).populate("category_id").exec();
+      return res.status(200).json({
+        success: true,
+        message: "Updated Collections retrived",
+        data: collections
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Something went wrong. Please try again later"
+      });
+    }
   } catch (ex) {
     return res.status(502).json({
       success: false,
