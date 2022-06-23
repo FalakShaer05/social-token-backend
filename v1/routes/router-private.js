@@ -24,8 +24,12 @@ module.exports = function RouterPrivate(database, settings) {
   router.post("/category", Category.createCategory);
   router.delete("/category/:id", Category.DeleteCategory);
 
-  // Art
+  // NFT
+  router.get("/nft", NFTToken.GetAll);
   router.post("/nft", upload.single("mintable_art"), NFTToken.Create);
+
+  // Profile
+  router.get("/my-nfts", NFTToken.GetMyAllNFTs);
 
   return router;
 };
