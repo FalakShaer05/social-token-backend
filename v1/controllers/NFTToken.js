@@ -161,6 +161,37 @@ controller.Create = async function (req, res) {
   }
 };
 
+controller.GetOne = async function (req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Id is required",
+      });
+    }
+
+    let nft = await NFTTokenModel.findById(id).populate(["collection_id"]).exec();
+    if(!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this id"
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "NFT retrived successfully",
+      data: nft,
+    });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
 controller.SellNFT = async function (req, res) {
   try {
     if (!req.body.walletAddress)
