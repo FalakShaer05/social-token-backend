@@ -1,6 +1,8 @@
 const mongoose = require(`mongoose`);
 
 mongoose.Promise = global.Promise;
+
+const SchemaTypes = mongoose.Schema.Types;
 const {Schema} = mongoose;
 
 const NFTToken = Schema({

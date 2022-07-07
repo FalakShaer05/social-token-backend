@@ -26,7 +26,7 @@ controller.Create = async function (req, res) {
 
     let result = await saveable.save();
     if(result) {
-      await NFTTokenModel.findOneAndUpdate({_id: nft_id} , {is_minted: true, is_traded: true, price: price}).exec();
+      await NFTTokenModel.findOneAndUpdate({_id: nft_id} , {is_minted: true, is_traded: true, is_private: false, price: price}).exec();
       return res.status(200).json({
         success: true,
         message: "Transaction stored",
