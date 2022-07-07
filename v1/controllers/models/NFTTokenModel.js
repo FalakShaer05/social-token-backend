@@ -13,7 +13,7 @@ const NFTToken = Schema({
     is_minted: {type: Boolean, default: false},
     mintable: {type: String, required: true},
     ipfsUrl: {type: String, required: false},
-    price: {type: Number, required: true},
+    price: {type: String, required: true},
     views: {type: Number, required: false, default: 0},
     created_by: {type: mongoose.Types.ObjectId, required: true, ref: "Users"},
     created: {type: Date, default: Date.now},
