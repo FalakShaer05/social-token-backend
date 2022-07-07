@@ -8,7 +8,7 @@ controller.Create = async function (req, res) {
     const nft_id = req.params.id;
     const { nftHash, transaction, transaction_type, price } = req.body;
 
-    if (!nftHash || !transaction || !transaction_type) {
+    if (!nftHash || !transaction || !transaction_type || !price) {
       return res.status(400).json({
         success: false,
         message: "NFT Hash, Transcation Object & Transcation Type is required",
