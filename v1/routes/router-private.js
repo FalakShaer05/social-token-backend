@@ -1,5 +1,6 @@
 const router = require(`express`).Router();
 const NFTToken = require(`../controllers/NFTToken`);
+const Transaction = require(`../controllers/Transactions`);
 const Collections = require(`../controllers/Collections`);
 const Category = require("../controllers/Category");
 const authentication = require("../middleware/validateJWT");
@@ -30,7 +31,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.post("/nft", upload.single("mintable_art"), NFTToken.Create);
 
   // Mint
-  router.post("/transaction/:id", NFTToken.Create);
+  router.post("/transaction/:id", Transaction.Create);
 
   // Profile
   router.get("/my-nfts", NFTToken.GetMyAllNFTs);
