@@ -6,7 +6,7 @@ const controller = {};
 controller.Create = async function (req, res) {
   try {
     const nft_id = req.params.id;
-    const { nftHash, transaction, transaction_type, price } = req.body;
+    const { nftHash, transaction, transaction_type, price, from, to } = req.body;
 
     if (!nftHash || !transaction || !transaction_type || !price) {
       return res.status(400).json({
@@ -18,6 +18,8 @@ controller.Create = async function (req, res) {
     let saveable = new TransactionsModel({
       tokenLocalId: nft_id,
       nftHash: nftHash,
+      from: from ? from : '',
+      to: to ? to : '',
       transaction: transaction,
       transaction_type: transaction_type
     })
