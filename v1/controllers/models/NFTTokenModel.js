@@ -10,6 +10,7 @@ const NFTToken = Schema({
     collection_id: {type: mongoose.Types.ObjectId, required: true, ref: "Collections"},
     is_private: {type: Boolean, required: true},
     is_traded: {type: Boolean, default: false},
+    is_minted: {type: Boolean, default: false},
     mintable: {type: String, required: true},
     ipfsUrl: {type: String, required: false},
     price: {type: Number, required: true},
