@@ -30,7 +30,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.post("/nft", upload.single("mintable_art"), NFTToken.Create);
 
   // Mint
-  router.put("/transaction", NFTToken.Create);
+  router.post("/transaction", NFTToken.Create);
 
   // Profile
   router.get("/my-nfts", NFTToken.GetMyAllNFTs);
