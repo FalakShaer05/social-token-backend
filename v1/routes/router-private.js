@@ -16,6 +16,7 @@ module.exports = function RouterPrivate(database, settings) {
 
   // Collections
   router.get("/collections", Collections.GetAll);
+  router.get("/collections/:id", Collections.GetOne);
   router.post("/collections", CollectionMulerSettings, Collections.Create);
   router.delete("/collections/:id", Collections.Delete);
 
@@ -32,6 +33,9 @@ module.exports = function RouterPrivate(database, settings) {
 
   // Mint
   router.post("/transaction/:id", Transaction.Create);
+
+  // Views
+  router.post("/views/:id", NFTToken.AddView);
 
   // Profile
   router.get("/my-nfts", NFTToken.GetMyAllNFTs);

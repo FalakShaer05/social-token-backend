@@ -95,22 +95,15 @@ controller.Update = async function (req, res) {
 
 controller.GetOne = async function (req, res) {
   try {
-    let collection = await CollectionModel.findById(req.params.id).lean();
-    let nfts = await NFTTokenModel.find({ collection_id: collection._id });
-    let other = {
-      total_nfts_count: nfts.length,
-      total_nft_price: nfts.reduce((acc, curr) => acc + curr.price, 0),
-      traded_nft_price: nfts.reduce((acc, curr) => {
-        return curr.is_traded ? acc + curr.price : acc;
-      }, 0)
-    };
+    const { id } = req.body;
 
-    collection = { ...collection, ...other };
+    let collection = await CollectionModel.findById(id).lean();
+    let nfts = await NFTTokenModel.find({ collection_id: collection._id });
 
     return res.status(200).json({
       success: true,
       message: "Collection retrieved successfully",
-      data: collection
+      data: { collection, nfts}
     });
   } catch (ex) {
     return res.status(502).json({

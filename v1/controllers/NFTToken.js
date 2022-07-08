@@ -22,6 +22,7 @@ controller.GetAll = async function (req, res) {
     }
     let nfts = await NFTTokenModel.find({ is_traded: true })
       .populate(["collection_id"])
+      .populate(["created_by"])
       .exec();
     return res.status(200).send({
       success: true,
@@ -171,6 +172,49 @@ controller.GetOne = async function (req, res) {
       message: "NFT retrived successfully",
       data: nft,
     });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
+controller.AddView = async function (req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Id is required",
+      });
+    }
+
+    let nft = await NFTTokenModel.findById(id).exec();
+    if (!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this id",
+      });
+    }
+
+    let count = parseInt(nft.views);
+    count++;
+
+    let result = await NFTTokenModel.findByIdAndUpdate(id, {views: count}).exec();
+    if(result) {
+      return res.status(200).send({
+        success: true,
+        message: "Count added",
+        data: count
+      });
+    } else {
+      return res.status(400).send({
+        success: false,
+        message: "something went wrong. Please try again later",
+      });
+    }
+    
   } catch (ex) {
     return res.status(500).json({
       success: false,
