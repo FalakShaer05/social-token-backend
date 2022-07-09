@@ -1,6 +1,8 @@
-const NFTTokenModel = require(`./models/NFTTokenModel`);
-const settings = require(`../../server-settings`);
 const fs = require("fs");
+
+const NFTTokenModel = require(`./models/NFTTokenModel`);
+const CollectionModel = require(`./models/CollectionModel`);
+const settings = require(`../../server-settings`);
 
 // Preparing IPFS Client
 const { create } = require("ipfs-http-client");
@@ -215,6 +217,32 @@ controller.AddView = async function (req, res) {
       });
     }
     
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
+controller.SearchNFT = async function (req, res) {
+  try {
+    const { key } = req.params;
+    if (!key) {
+      return res.status(400).json({
+        success: false,
+        message: "Search key is required",
+      });
+    }
+
+    let nfts = await NFTTokenModel.find({ "name": { $regex: '.*' + key + '.*' } }).exec();
+    let collections = await CollectionModel.find({ "name": { $regex: '.*' + key + '.*' } }).exec();
+
+    return res.status(200).send({
+      success: true,
+      message: "Search results retrived",
+      data: {nfts, collections}
+    });
   } catch (ex) {
     return res.status(500).json({
       success: false,

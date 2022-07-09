@@ -1,9 +1,5 @@
 const CollectionModel = require(`./models/CollectionModel`);
 const NFTTokenModel = require("./models/NFTTokenModel");
-const categoryModel = require("./models/CategoryModel");
-const fileSystem = require("fs");
-const path = require("path");
-const mime = require("mime-types");
 const settings = require("../../server-settings.json");
 
 const controller = {};
