@@ -82,7 +82,7 @@ controller.Create = async function (req, res) {
       });
     }
 
-    fs.readFile(path, "utf8", async function (err, file) {
+     fs.readFile(path, "utf8", async function (err, file) {
       if (err) throw err;
       const ipfsData = await ipfs.add(file);
       const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`;
@@ -140,7 +140,7 @@ controller.Create = async function (req, res) {
         message: "Token saved successfully",
         data: result,
       });
-    });
+   });
   } catch (ex) {
     return res.status(500).json({
       success: false,
@@ -251,33 +251,30 @@ controller.SearchNFT = async function (req, res) {
   }
 };
 
-controller.AddTokenId = async function (req, res){
+controller.UpdateNft = async function (req, res){
   try{
-    const {
-     nft_id,
-     token_id,
-    } = req.body;
-    if (!nft_id) {
-      return res.status(400).json({
-        success: false,
-        message: "NFT Id is required",
-      });
-    }
-
-    let nft = await NFTTokenModel.findById(nft_id).exec();
-    if (!nft) {
+    let record = await NFTTokenModel.findById(req.params.id)
+    if (!record) {
       return res.status(400).send({
         success: false,
         message: "No nft found with this id",
       });
     }
+    const _data = {
+      token_id: req.body.token_id ?? record.token_id,
+      collection_id: req.body.collection_id ?? record.collection_id,
+      is_private: req.body.is_private ?? record.is_private,
+      is_traded: req.body.is_traded ?? record.is_traded,
+      is_minted: req.body.is_minted ?? record.is_minted,
+      views:req.body.views ?? record.views,
+    }
 
-    let result = await NFTTokenModel.findByIdAndUpdate(nft_id, {token_id: token_id}).exec();
+    let result = await NFTTokenModel.findByIdAndUpdate(req.params.id, _data, {new: true}).exec();
     if(result) {
       return res.status(200).send({
         success: true,
-        message: "Token Id added",
-        data: count
+        message: "data updated",
+        data: result
       });
     } else {
       return res.status(400).send({
