@@ -251,4 +251,46 @@ controller.SearchNFT = async function (req, res) {
   }
 };
 
+controller.AddTokenId = async function (req, res){
+  try{
+    const {
+     nft_id,
+     token_id,
+    } = req.body;
+    if (!nft_id) {
+      return res.status(400).json({
+        success: false,
+        message: "NFT Id is required",
+      });
+    }
+
+    let nft = await NFTTokenModel.findById(nft_id).exec();
+    if (!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this id",
+      });
+    }
+
+    let result = await NFTTokenModel.findByIdAndUpdate(nft_id, {token_id: token_id}).exec();
+    if(result) {
+      return res.status(200).send({
+        success: true,
+        message: "Token Id added",
+        data: count
+      });
+    } else {
+      return res.status(400).send({
+        success: false,
+        message: "something went wrong. Please try again later",
+      });
+    }
+  }catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
 module.exports = controller;
