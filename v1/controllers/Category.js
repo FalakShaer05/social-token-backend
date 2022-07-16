@@ -1,5 +1,6 @@
 const CategoryModel = require(`./models/CategoryModel`);
-const settings = require("../../server-settings.json");
+const CollectionModel = require(`./models/CollectionModel`);
+const NFTTokenModel = require(`./models/NFTTokenModel`);
 
 const controller = {};
 
@@ -98,6 +99,31 @@ controller.GetAllCategories = async function (req, res) {
       success: true,
       message: "Categories retrieved successfully",
       data: categories
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message
+    });
+  }
+};
+
+controller.GetCollectionByCategory = async function (req, res) {
+  try {
+    const {id} = req.params
+    let collection = await CollectionModel.findOne({category_id: id});
+    if(!collection) {
+      return res.status(404).json({
+        success: false,
+        message: "Collection not found",
+      });
+    }
+
+    let nfts = await NFTTokenModel.find({collection_id: collection._id})
+    return res.status(200).json({
+      success: true,
+      message: "NFT's retrived",
+      data: nfts
     });
   } catch (ex) {
     return res.status(502).json({

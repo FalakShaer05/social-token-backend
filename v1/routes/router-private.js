@@ -14,6 +14,9 @@ const CollectionMulerSettings = upload.fields([
 module.exports = function RouterPrivate(database, settings) {
   router.use(authentication.authenticate);
 
+  // Get collections by category
+  router.get("/collections/category/:id", Category.GetCollectionByCategory);
+
   // Collections
   router.get("/collections", Collections.GetAll);
   router.get("/collections/:id", Collections.GetOne);
