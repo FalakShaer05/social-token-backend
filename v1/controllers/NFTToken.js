@@ -271,6 +271,9 @@ controller.UpdateNft = async function (req, res) {
     }
     const _data = {
       token_id: req.body.token_id ?? record.token_id,
+      current_owner: req.body.current_owner ?? record.current_owner,
+      current_owner_username:
+        req.body.current_owner_username ?? current_owner_username,
       collection_id: req.body.collection_id ?? record.collection_id,
       is_private: req.body.is_private ?? record.is_private,
       is_traded: req.body.is_traded ?? record.is_traded,
