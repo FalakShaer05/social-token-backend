@@ -69,6 +69,8 @@ controller.Create = async function (req, res) {
     const {
       name,
       description,
+      current_owner,
+      current_owner_username,
       external_link,
       collection_id,
       is_private,
@@ -82,7 +84,7 @@ controller.Create = async function (req, res) {
       });
     }
 
-     fs.readFile(path, "utf8", async function (err, file) {
+    fs.readFile(path, "utf8", async function (err, file) {
       if (err) throw err;
       const ipfsData = await ipfs.add(file);
       const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`;
@@ -90,6 +92,8 @@ controller.Create = async function (req, res) {
       let data = {
         name,
         description,
+        current_owner,
+        current_owner_username,
         external_link,
         collection_id,
         is_private: is_private,
@@ -140,7 +144,7 @@ controller.Create = async function (req, res) {
         message: "Token saved successfully",
         data: result,
       });
-   });
+    });
   } catch (ex) {
     return res.status(500).json({
       success: false,
@@ -203,12 +207,14 @@ controller.AddView = async function (req, res) {
     let count = parseInt(nft.views);
     count++;
 
-    let result = await NFTTokenModel.findByIdAndUpdate(id, {views: count}).exec();
-    if(result) {
+    let result = await NFTTokenModel.findByIdAndUpdate(id, {
+      views: count,
+    }).exec();
+    if (result) {
       return res.status(200).send({
         success: true,
         message: "Count added",
-        data: count
+        data: count,
       });
     } else {
       return res.status(400).send({
@@ -216,7 +222,6 @@ controller.AddView = async function (req, res) {
         message: "something went wrong. Please try again later",
       });
     }
-    
   } catch (ex) {
     return res.status(500).json({
       success: false,
@@ -235,13 +240,17 @@ controller.SearchNFT = async function (req, res) {
       });
     }
 
-    let nfts = await NFTTokenModel.find({ "name": { $regex: '.*' + key + '.*' } }).exec();
-    let collections = await CollectionModel.find({ "name": { $regex: '.*' + key + '.*' } }).exec();
+    let nfts = await NFTTokenModel.find({
+      name: { $regex: ".*" + key + ".*" },
+    }).exec();
+    let collections = await CollectionModel.find({
+      name: { $regex: ".*" + key + ".*" },
+    }).exec();
 
     return res.status(200).send({
       success: true,
       message: "Search results retrived",
-      data: {nfts, collections}
+      data: { nfts, collections },
     });
   } catch (ex) {
     return res.status(500).json({
@@ -251,9 +260,9 @@ controller.SearchNFT = async function (req, res) {
   }
 };
 
-controller.UpdateNft = async function (req, res){
-  try{
-    let record = await NFTTokenModel.findById(req.params.id)
+controller.UpdateNft = async function (req, res) {
+  try {
+    let record = await NFTTokenModel.findById(req.params.id);
     if (!record) {
       return res.status(400).send({
         success: false,
@@ -266,15 +275,17 @@ controller.UpdateNft = async function (req, res){
       is_private: req.body.is_private ?? record.is_private,
       is_traded: req.body.is_traded ?? record.is_traded,
       is_minted: req.body.is_minted ?? record.is_minted,
-      views:req.body.views ?? record.views,
-    }
+      views: req.body.views ?? record.views,
+    };
 
-    let result = await NFTTokenModel.findByIdAndUpdate(req.params.id, _data, {new: true}).exec();
-    if(result) {
+    let result = await NFTTokenModel.findByIdAndUpdate(req.params.id, _data, {
+      new: true,
+    }).exec();
+    if (result) {
       return res.status(200).send({
         success: true,
         message: "data updated",
-        data: result
+        data: result,
       });
     } else {
       return res.status(400).send({
@@ -282,7 +293,7 @@ controller.UpdateNft = async function (req, res){
         message: "something went wrong. Please try again later",
       });
     }
-  }catch (ex) {
+  } catch (ex) {
     return res.status(500).json({
       success: false,
       message: ex.message,
