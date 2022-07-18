@@ -353,7 +353,7 @@ controller.GetByCollection = async function (req, res) {
       });
     }
 
-    let nft = await NFTTokenModel.find({ id })
+    let nft = await NFTTokenModel.find({ collection_id: id })
       .populate(["collection_id"])
       .exec();
     if (!nft) {
