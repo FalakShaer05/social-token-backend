@@ -22,6 +22,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.get("/collections/:id", Collections.GetOne);
   router.post("/collections", CollectionMulerSettings, Collections.Create);
   router.delete("/collections/:id", Collections.Delete);
+  router.get("/collectionsall", Collections.GetAllCollections);
 
   // Category
   router.get("/category", Category.GetAllCategories);
@@ -51,6 +52,9 @@ module.exports = function RouterPrivate(database, settings) {
 
   //nft search by owner username and address
   router.post("/nft/owner", NFTToken.GetByOwnerAddressAndUsername);
+
+  //nft search by collection id
+  router.get("/nft/collection/:id", NFTToken.GetByCollection);
 
   return router;
 };

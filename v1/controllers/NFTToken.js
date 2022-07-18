@@ -343,4 +343,37 @@ controller.GetByOwnerAddressAndUsername = async function (req, res) {
   }
 };
 
+controller.GetByCollection = async function (req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "id is required ",
+      });
+    }
+
+    let nft = await NFTTokenModel.find({ id })
+      .populate(["collection_id"])
+      .exec();
+    if (!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this collection id",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "NFT retrived successfully",
+      data: nft,
+    });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
 module.exports = controller;
