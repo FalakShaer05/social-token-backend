@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 const NFTToken = Schema({
   name: { type: String, required: true },
   token_id: { type: String, required: false },
-  current_owner: { type: String, required: false },
+  current_owner_address: { type: String, required: false },
   current_owner_username: { type: String, required: false },
   external_link: { type: String, required: false },
   collection_id: {
