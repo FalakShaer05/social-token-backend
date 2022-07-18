@@ -49,5 +49,8 @@ module.exports = function RouterPrivate(database, settings) {
   // Profile
   router.get("/my-nfts", NFTToken.GetMyAllNFTs);
 
+  //nft search by owner username and address
+  router.post("/nft/owner", NFTToken.GetByOwnerAddressAndUsername);
+
   return router;
 };

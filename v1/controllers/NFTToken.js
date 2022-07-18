@@ -305,4 +305,42 @@ controller.UpdateNft = async function (req, res) {
   }
 };
 
+controller.GetByOwnerAddressAndUsername = async function (req, res) {
+  try {
+    const { owner_username, owner_address } = req.body;
+    if (!owner_username && !owner_address) {
+      return res.status(400).json({
+        success: false,
+        message: "owner username or address is required ",
+      });
+    }
+
+    let nft = await NFTTokenModel.find({
+      $or: [
+        { current_owner_username: owner_username },
+        { current_owner_address: owner_address },
+      ],
+    })
+      .populate(["collection_id"])
+      .exec();
+    if (!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this owner details",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "NFT retrived successfully",
+      data: nft,
+    });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
 module.exports = controller;
