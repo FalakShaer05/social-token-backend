@@ -269,20 +269,20 @@ controller.UpdateNft = async function (req, res) {
         message: "No nft found with this id",
       });
     }
-    const _data = {
-      token_id: req.body.token_id ?? record.token_id,
-      current_owner_address:
-        req.body.current_owner_address ?? record.current_owner_address,
-      current_owner_username:
-        req.body.current_owner_username ?? current_owner_username,
-      collection_id: req.body.collection_id ?? record.collection_id,
-      is_private: req.body.is_private ?? record.is_private,
-      is_traded: req.body.is_traded ?? record.is_traded,
-      is_minted: req.body.is_minted ?? record.is_minted,
-      views: req.body.views ?? record.views,
-    };
+    // const _data = {
+    //   token_id: req.body.token_id ?? record.token_id,
+    //   current_owner_address:
+    //     req.body.current_owner_address ?? record.current_owner_address,
+    //   current_owner_username:
+    //     req.body.current_owner_username ?? current_owner_username,
+    //   collection_id: req.body.collection_id ?? record.collection_id,
+    //   is_private: req.body.is_private ?? record.is_private,
+    //   is_traded: req.body.is_traded ?? record.is_traded,
+    //   is_minted: req.body.is_minted ?? record.is_minted,
+    //   views: req.body.views ?? record.views,
+    // };
 
-    let result = await NFTTokenModel.findByIdAndUpdate(req.params.id, _data, {
+    let result = await NFTTokenModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     }).exec();
     if (result) {
