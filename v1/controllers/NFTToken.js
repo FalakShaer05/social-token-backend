@@ -314,15 +314,25 @@ controller.GetByOwnerAddressAndUsername = async function (req, res) {
         message: "owner username or address is required ",
       });
     }
+    let nft
+    if(owner_username && owner_address){
+      nft = await NFTTokenModel.find({current_owner_username: owner_username ,
+           current_owner_address: owner_address ,
+      })
+        .populate(["collection_id"])
+        .exec();
+    }
+    else if(owner_username){
+      nft = await NFTTokenModel.find({current_owner_username: owner_username })
+     .populate(["collection_id"])
+     .exec();
+ }
+    else if(owner_address){
+      nft = await NFTTokenModel.find({current_owner_address: owner_address })
+     .populate(["collection_id"])
+     .exec();
+ }
 
-    let nft = await NFTTokenModel.find({
-      $or: [
-        { current_owner_username: owner_username },
-        { current_owner_address: owner_address },
-      ],
-    })
-      .populate(["collection_id"])
-      .exec();
     if (!nft) {
       return res.status(400).send({
         success: false,
