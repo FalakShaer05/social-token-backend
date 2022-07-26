@@ -23,6 +23,7 @@ module.exports = function RouterPrivate(database, settings) {
   router.post("/collections", CollectionMulerSettings, Collections.Create);
   router.delete("/collections/:id", Collections.Delete);
   router.get("/collectionsall", Collections.GetAllCollections);
+  router.get("/collections/addtraded/:id/:price", Collections.AddTradedPrice);
 
   // Category
   router.get("/category", Category.GetAllCategories);

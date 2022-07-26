@@ -42,6 +42,7 @@ controller.Create = async function (req, res) {
       thumbnail_image: thumbnail_image,
       timeline_image: timeline_image,
       category_id: req.body.category_id,
+      traded: req.body.traded,
       created_by: req.body.created_by,
     };
 
@@ -171,6 +172,34 @@ controller.GetAllCollections = async function (req, res) {
     return res.status(502).json({
       success: false,
       message: "error",
+    });
+  }
+};
+controller.AddTradedPrice = async function (req, res) {
+  try {
+    let record = await CollectionModel.findById(req.params.id);
+    if (!record) {
+      throw new Error("collection not found");
+    }
+    let traded = record.traded + parseInt(req.params.price);
+    const model = await CollectionModel.findByIdAndUpdate(
+      req.params.id,
+      { traded: traded },
+      {
+        new: true,
+        useFindAndModify: false,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "price added successfully",
+      data: model,
+    });
+  } catch (ex) {
+    return res.status(502).json({
+      success: false,
+      message: ex.message,
     });
   }
 };

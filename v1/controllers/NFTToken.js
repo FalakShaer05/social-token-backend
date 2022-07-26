@@ -2,10 +2,12 @@ const fs = require("fs");
 
 const NFTTokenModel = require(`./models/NFTTokenModel`);
 const CollectionModel = require(`./models/CollectionModel`);
+const AddViewModel = require(`./models/AddViewModel`);
 const settings = require(`../../server-settings`);
 
 // Preparing IPFS Client
 const { create } = require("ipfs-http-client");
+const { default: jwtDecode } = require("jwt-decode");
 const ipfs = create(
   `https://${
     process.env.InfuraIpfsProectId + ":" + process.env.infuraipfsproectsecret
@@ -189,6 +191,9 @@ controller.GetOne = async function (req, res) {
 controller.AddView = async function (req, res) {
   try {
     const { id } = req.params;
+    let user = req.headers.authorization;
+    user = user.replace("Bearer ", "");
+    const current_user = jwtDecode(user);
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -203,9 +208,19 @@ controller.AddView = async function (req, res) {
         message: "No nft found with this id",
       });
     }
-
+    let verify = await AddViewModel.findOne({
+      user: current_user.sub,
+      nft: id,
+    });
+    if (verify) {
+      throw new Error("view already added");
+    }
     let count = parseInt(nft.views);
     count++;
+    const data = { user: current_user.sub, nft: id };
+
+    let view_vailidaition = new AddViewModel(data);
+    await view_vailidaition.save();
 
     let result = await NFTTokenModel.findByIdAndUpdate(id, {
       views: count,
