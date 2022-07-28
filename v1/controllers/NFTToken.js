@@ -213,7 +213,10 @@ controller.AddView = async function (req, res) {
       nft: id,
     });
     if (verify) {
-      throw new Error("view already added");
+      return res.status(400).send({
+        success: false,
+        message: "view already added",
+      });
     }
     let count = parseInt(nft.views);
     count++;
