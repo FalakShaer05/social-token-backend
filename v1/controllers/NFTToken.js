@@ -329,14 +329,15 @@ controller.UpdateNft = async function (req, res) {
 
 controller.GetByOwnerAddressAndUsername = async function (req, res) {
   try {
-    const { owner_username, owner_address } = req.body;
-    if (!owner_username && !owner_address) {
+    const { owner_username, owner_address, old_owner_address } = req.body;
+    if (!owner_username && !owner_address && !old_owner_address) {
       return res.status(400).json({
         success: false,
-        message: "owner username or address is required ",
+        message: "owner username, current address or old address is required ",
       });
     }
     let nft;
+    let test;
     if (owner_username && owner_address) {
       nft = await NFTTokenModel.find({
         current_owner_username: owner_username,
@@ -362,6 +363,55 @@ controller.GetByOwnerAddressAndUsername = async function (req, res) {
         .populate(["collection_id"])
         .exec();
     }
+    else if (old_owner_address) {
+      test = 'test'
+      nft = await NFTTokenModel.find({
+        old_owner_address: {
+          $regex: "^" + old_owner_address + "$",
+          $options: "i",
+        },
+      })
+        .populate(["collection_id"])
+        .exec();
+    }else if (owner_username && owner_address && old_owner_address) {
+      nft = await NFTTokenModel.find({
+        current_owner_username: owner_username,
+        current_owner_address: {
+          $regex: "^" + owner_address + "$",
+          $options: "i",
+        },old_owner_address: {
+          $regex: "^" + old_owner_address + "$",
+          $options: "i",
+        }
+
+      })
+        .populate(["collection_id"])
+        .exec();
+    } else if (owner_username &&  old_owner_address) {
+      nft = await NFTTokenModel.find({
+        current_owner_username: owner_username,
+        old_owner_address: {
+          $regex: "^" + old_owner_address + "$",
+          $options: "i",
+        }
+
+      })
+        .populate(["collection_id"])
+        .exec();
+    } else if ( owner_address && old_owner_address) {
+      nft = await NFTTokenModel.find({
+        current_owner_address: {
+          $regex: "^" + owner_address + "$",
+          $options: "i",
+        },old_owner_address: {
+          $regex: "^" + old_owner_address + "$",
+          $options: "i",
+        }
+
+      })
+        .populate(["collection_id"])
+        .exec();
+    } 
 
     if (!nft) {
       return res.status(400).send({
@@ -374,6 +424,7 @@ controller.GetByOwnerAddressAndUsername = async function (req, res) {
       success: true,
       message: "NFT retrived successfully",
       data: nft,
+      test: test
     });
   } catch (ex) {
     return res.status(500).json({
