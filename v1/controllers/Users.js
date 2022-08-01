@@ -39,6 +39,12 @@ controller.AddUser = async function (req, res) {
     return res.status(400).json({ success: false, message: `That username already exists` });
   }
 
+  const email_exist = await Usermodel.findOne({email: user.email})
+
+  if(email_exist){
+    return res.status(400).json({ success: false, message: `That email already exists` });
+  }
+
   const model = new UsersModel(user);
   const promise = model.save();
   const token = jwt.sign({ sub: model._id }, settings.server.secret, {

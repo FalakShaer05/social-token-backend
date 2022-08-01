@@ -73,6 +73,7 @@ controller.Create = async function (req, res) {
       description,
       current_owner_address,
       current_owner_username,
+      old_owner_address,
       external_link,
       collection_id,
       is_private,
@@ -96,6 +97,7 @@ controller.Create = async function (req, res) {
         description,
         current_owner_address,
         current_owner_username,
+        old_owner_address,
         external_link,
         collection_id,
         is_private: is_private,
@@ -213,7 +215,7 @@ controller.AddView = async function (req, res) {
       nft: id,
     });
     if (verify) {
-      return res.status(400).send({
+      return res.status(200).send({
         success: false,
         message: "view already added",
       });
@@ -259,10 +261,10 @@ controller.SearchNFT = async function (req, res) {
     }
 
     let nfts = await NFTTokenModel.find({
-      name: { $regex: ".*" + key + ".*" },
+      name: { $regex: ".*" + key + ".*", $options: "i", },
     }).exec();
     let collections = await CollectionModel.find({
-      name: { $regex: ".*" + key + ".*" },
+      name: { $regex: ".*" + key + ".*", $options: "i", },
     }).exec();
 
     return res.status(200).send({
@@ -293,7 +295,9 @@ controller.UpdateNft = async function (req, res) {
         req.body.current_owner_address ?? record.current_owner_address,
       current_owner_username:
         req.body.current_owner_username ?? record.current_owner_username,
-      collection_id: req.body.collection_id ?? record.collection_id,
+        old_owner_address:
+        req.body.old_owner_address ?? record.old_owner_address,
+        collection_id: req.body.collection_id ?? record.collection_id,
       is_private: req.body.is_private ?? record.is_private,
       is_traded: req.body.is_traded ?? record.is_traded,
       is_minted: req.body.is_minted ?? record.is_minted,
@@ -340,6 +344,7 @@ controller.GetByOwnerAddressAndUsername = async function (req, res) {
           $regex: "^" + owner_address + "$",
           $options: "i",
         },
+
       })
         .populate(["collection_id"])
         .exec();

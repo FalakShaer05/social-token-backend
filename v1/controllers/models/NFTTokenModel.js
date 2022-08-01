@@ -9,6 +9,7 @@ const NFTToken = Schema({
   token_id: { type: String, required: false },
   current_owner_address: { type: String, required: false },
   current_owner_username: { type: String, required: false },
+  old_owner_address: { type: String, required: false },
   external_link: { type: String, required: false },
   collection_id: {
     type: mongoose.Types.ObjectId,
