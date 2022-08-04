@@ -41,6 +41,15 @@ module.exports = function RouterPrivate(database, settings) {
 
   // NFT Search
   router.get("/nft/search/:key", NFTToken.SearchNFT);
+  
+  //NFT Total sales per day
+  router.get("/totalsales", NFTToken.NftTotalSale); 
+  
+  //NFT Highest Sold Today
+  router.get("/highestsold", NFTToken.NftHighestSoldToday);
+
+  //NFT Highest Sold All time
+  router.get("/highestsoldalltime", NFTToken.NftHighestSoldAlltime);
 
   // Mint
   router.post("/transaction/:id", Transaction.Create);

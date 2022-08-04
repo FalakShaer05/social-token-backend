@@ -4,6 +4,7 @@ const NFTTokenModel = require(`./models/NFTTokenModel`);
 const CollectionModel = require(`./models/CollectionModel`);
 const AddViewModel = require(`./models/AddViewModel`);
 const settings = require(`../../server-settings`);
+const moment = require("moment")
 
 // Preparing IPFS Client
 const { create } = require("ipfs-http-client");
@@ -148,7 +149,7 @@ controller.Create = async function (req, res) {
         message: "Token saved successfully",
         data: result,
       });
-    });
+   });
   } catch (ex) {
     return res.status(500).json({
       success: false,
@@ -443,7 +444,7 @@ controller.GetByCollection = async function (req, res) {
     }
 
     let nft = await NFTTokenModel.find({ collection_id: id })
-      .populate(["collection_id"])
+      .populate(["collection_id", "created_by"])
       .exec();
     if (!nft) {
       return res.status(400).send({
@@ -459,6 +460,87 @@ controller.GetByCollection = async function (req, res) {
     });
   } catch (ex) {
     return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+controller.NftTotalSale = async function (req, res) {
+  try {
+     const  start_time = moment().utc(true).startOf('date')
+     const  end_time = moment().utc(true).add(1, 'days').startOf('date')
+     const nft_record = await NFTTokenModel.find({"current_owner_address": {"$exists":true,"$ne":""}, "current_owner_username": {"$exists":true,"$ne":""},  "updated":{$gte: start_time, $lt: end_time}})
+    return res.status(200).send({
+      success: true,
+      message: "NFT Total sales today",
+       count: nft_record.length,
+    });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+}; 
+
+controller.NftHighestSoldToday = async function (req, res) {
+  try {
+     const  start_time = moment().utc(true).startOf('date')
+     const  end_time = moment().utc(true).add(1, 'days').startOf('date')
+     const nft_record = await NFTTokenModel.find({"current_owner_address": {"$exists":true,"$ne":""}, "current_owner_username": {"$exists":true,"$ne":""},  "updated":{$gte: start_time, $lt: end_time}})
+     let highest_price = 0
+     let highest_price_nfts = []
+     for(let i=0; i<nft_record.length; i++){
+       if(parseInt(nft_record[i].price) > highest_price){
+         highest_price=parseInt(nft_record[i].price)
+       }
+     }
+
+     for(let i=0; i<nft_record.length; i++){
+      if(parseInt(nft_record[i].price) == highest_price){
+        highest_price_nfts.push(nft_record[i])
+      }
+    }
+
+
+    return res.status(200).send({
+      success: true,
+      message: "Highest Sold NFT Today",
+       data: highest_price_nfts,   
+    });
+  } catch (ex) {
+    return res.status(500).json({    
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
+controller.NftHighestSoldAlltime= async function (req, res) {
+  try {
+     
+     const nft_record = await NFTTokenModel.find({"current_owner_address": {"$exists":true,"$ne":""}, "current_owner_username": {"$exists":true,"$ne":""}})
+     let highest_price = 0
+     let highest_price_nfts = []
+     for(let i=0; i<nft_record.length; i++){
+       if(parseInt(nft_record[i].price) > highest_price){
+         highest_price=parseInt(nft_record[i].price)
+       }
+     }
+
+     for(let i=0; i<nft_record.length; i++){
+      if(parseInt(nft_record[i].price) == highest_price){
+        highest_price_nfts.push(nft_record[i])
+      }
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Highest Sold NFT All time",
+       data: highest_price_nfts,
+    });
+  } catch (ex) {
+    return res.status(500).json({    
       success: false,
       message: ex.message,
     });
