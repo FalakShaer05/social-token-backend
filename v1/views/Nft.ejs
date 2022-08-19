@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>nft detail</title>
+</head>
+
+<style type="text/css">
+	.d-flex{
+		display: flex;
+	}
+	.align-itens-center{
+		align-items: center;
+	}
+	.justify-content-between{
+		justify-content: space-between;
+	}
+	.w-100{
+		width: 100%;
+	}
+	.mx-auto{
+		margin: 0 auto;
+	}
+	.font-18{
+		font-size: 18px;
+	}
+	.mt-10{
+      margin-top: 20px
+	}
+</style>
+<body>
+<div class="mx-auto" style="max-width: 500px;">
+	<img class="w-100" style="height: 200px;object-fit: cover;" src="<%= nft.collection_id.thumbnail_image %>">
+ 
+ <div class="d-flex align-itens-center justify-content-between mt-10">
+ 	<div>
+ 		<div class="font-18"><b>Name</b></div>
+ 		<div><%= nft.name %></div>
+ 	</div>
+	 <div>
+		<div class="font-18"><b>Price</b></div>
+		<div><%= nft.price%></div>
+	</div>
+ </div>
+
+ <div class="mt-10">
+ 	<div class="font-18"><b>Description</b></div>
+ 	<div><%= nft.collection_id.description %></div>
+ </div>
+
+ <!-- <div class="mt-10">
+ 	<div class="font-18"><b>External Link</b></div>
+ 	<div>nft external link</div>
+ </div> -->
+
+ <div class="mt-10">
+ 	<div class="font-18"><b>Mintable (IPFS URL)</b></div>
+ 	<div><%= nft.ipfsurl %></div>
+ </div>
+
+ <div class="d-flex align-itens-center justify-content-between mt-10" >
+ 	<div>
+ 		<div class="font-18"><b>Private</b></div>
+            <% if (nft.is_private) { %>
+                <div>Yes</div>
+                <%} else { %>
+                <div> No </div>
+                <% } %> 
+ 	</div>
+ 	<div>
+ 		<div class="font-18"><b>Traded</b></div>
+         <% if (nft.is_traded) { %>
+            <div>Yes</div>
+            <%} else { %>
+            <div> No </div>
+            <% } %> 
+ 	</div>
+ </div>
+
+ <div class="d-flex align-itens-center justify-content-between mt-10">
+ 	<div>
+ 		<div class="font-18"><b>Created</b></div>
+ 		<div><%= nft.created %></div>
+ 	</div>
+ 	<div>
+ 		<div class="font-18"><b>Views</b></div>
+ 		<div><%= nft.views%></div>
+ 	</div>
+ </div>
+
+ <!-- <div class="d-flex align-itens-center justify-content-between mt-10">
+    <div>
+        <form action="/v1/send/shareview" method="POST">
+            <input type="email" id="user_email" name="user_email" />
+            <input type="hidden" id="nft_id" name="nft_id" value="<%= nft._id %>" />
+            <input type="submit" value="Share" />
+          </form>
+    </div>
+</div> -->
+</div>
+
+<script>
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/android/i.test(userAgent)) {
+      var now = new Date().valueOf();
+      window.location = "com.socialtoken.nftmarketplace:\\";
+    }
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      var now = new Date().valueOf();
+      window.location = "com.socialtoken.nftmarketplace:\\";
+    }
+  </script>
+
+</body>
+</html>

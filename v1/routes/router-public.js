@@ -1,6 +1,7 @@
 const router = require(`express`).Router();
 const _auth = require(`../auth`);
 const users = require(`../controllers/Users`);
+const NFTToken = require(`../controllers/NFTToken`);
 const upload = require("../config/uploadConfig");
 const Common = require("../controllers/Common");
 
@@ -26,6 +27,11 @@ module.exports = function RouterPublic(database, settings) {
 
     // Common
     router.route("/countries").get(Common.getCountries);
+
+    //NFT Share View
+    router.get("/nft/shareview/:id", NFTToken.NftShareView);
+    router.get("/send/shareview/:nft_id", NFTToken.NftSendShareView);
+    //router.get("/sharedviews", NFTToken.NftGetSharedView);
 
     return router;
 };

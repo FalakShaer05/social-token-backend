@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <style>
+      table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      td,
+      th {
+        border: 1px solid #DDDDDD;
+        text-align: left;
+        padding: 8px;
+      }
+      tr:nth-child(even) {
+        background-color: #DDDDDD;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Shared Views</h2>
+    <table>
+      <tr>
+        <th>URL</th>
+        <th>From</th>
+      </tr>
+      <% SharedViews.forEach(function(view){ %>
+      <tr>
+        <td><a href="<%=view.url%>""><%= view.url %></a></td>
+        <td><%= view.from.email %></td>
+      </tr>
+      <% }); %>
+    </table>
+  </body>
+</html>

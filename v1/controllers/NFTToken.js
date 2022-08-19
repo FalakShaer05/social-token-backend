@@ -3,6 +3,7 @@ const fs = require("fs");
 const NFTTokenModel = require(`./models/NFTTokenModel`);
 const CollectionModel = require(`./models/CollectionModel`);
 const AddViewModel = require(`./models/AddViewModel`);
+const UsersModel = require(`./models/UsersModel`);
 const settings = require(`../../server-settings`);
 const moment = require("moment")
 
@@ -546,5 +547,79 @@ controller.NftHighestSoldAlltime= async function (req, res) {
     });
   }
 };
+
+
+controller.NftShareView = async function (req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Id is required",
+      });
+    }
+    let nft = await NFTTokenModel.findById(id)
+      .populate(["collection_id"])
+      .exec();
+    if (!nft) {
+      return res.status(400).send({
+        success: false,
+        message: "No nft found with this id",
+      });
+    }
+    res.render("Nft", { nft: nft });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+controller.NftSendShareView = async function (req, res) {
+  try {
+    const { nft_id } = req.params;
+    
+    //const url = "http://localhost:3000/v1/nft/shareview/" + nft_id;
+    const url = "https://apis.socialtokennft.com/v1/nft/shareview/" + nft_id;
+
+    // const url =
+    //   "https://bea1-2407-aa80-116-e5da-c82c-772-7ba2-3733.in.ngrok.io/v1/nft/shareview/" +
+    //   nft_id;
+    
+    return res.status(200).send({
+      success: true,
+      message: "Url generated successfully",
+      data: url,
+    });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
+
+
+controller.NftGetSharedView = async function (req, res) {
+  try {
+    let token = req.headers.authorization;
+    token = token.replace("Bearer ", "");
+    const current_user = jwtDecode(token);
+    const SharedViews = await SharedViewsModel.find({
+      to: current_user.sub,
+    })
+      .populate("from")
+      .exec();
+    res.render("NftSharedViews", { SharedViews: SharedViews });
+  } catch (ex) {
+    return res.status(500).json({
+      success: false,
+      message: ex.message,
+    });
+  }
+};
+
+
 
 module.exports = controller;
