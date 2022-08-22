@@ -2,6 +2,8 @@
 <html>
 <head>
 	<title>nft detail</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </head>
 
 <style type="text/css">
@@ -87,7 +89,6 @@
  	</div>
  </div>
 
-
  <!-- <div class="d-flex align-itens-center justify-content-between mt-10">
     <div>
         <form action="/v1/send/shareview" method="POST">
@@ -101,16 +102,16 @@
 
 <script>
     var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-	var url = window.location.href
-	var url_array = url.split('/')
-	var nft_id = url_array[url_array.length - 1]
+
+	var nft_id =  '<%-nft._id%>'
+
     if (/android/i.test(userAgent)) {
       var now = new Date().valueOf();
       window.location = "com.socialtoken.nftmarketplace:\\";
     }
     if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
       var now = new Date().valueOf();
-      window.location = "com.socialtoken.nftmarketplace:"+ nft_id ;
+      window.location = "com.socialtoken.nftmarketplace://nftDetailScreen:/" + nft_id ;
     }
   </script>
 
