@@ -27,6 +27,7 @@ module.exports = function RouterPublic(database, settings) {
 
     // Common
     router.route("/countries").get(Common.getCountries);
+    
 
     //NFT Share View
     router.get("/nft/shareview/:id", NFTToken.NftShareView);

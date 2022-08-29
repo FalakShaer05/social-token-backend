@@ -66,5 +66,6 @@ module.exports = function RouterPrivate(database, settings) {
   //nft search by collection id
   router.get("/nft/collection/:id", NFTToken.GetByCollection);
 
+
   return router;
 };
