@@ -12,6 +12,18 @@ controller.privacyPolicy = async function (req ,res){
       }
 
 }
+controller.support = async function (req ,res){
+    try {
+        
+        res.render("support");
+      } catch (ex) {
+        return res.status(500).json({
+          success: false,
+          message: ex.message,
+        });
+      }
+
+}
 
 
 

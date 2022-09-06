@@ -35,6 +35,7 @@ module.exports = function RouterPublic(database, settings) {
     router.get("/send/shareview/:nft_id", NFTToken.NftSendShareView);
     //router.get("/sharedviews", NFTToken.NftGetSharedView);
     router.get("/privacy",privacy.privacyPolicy)
+    router.get("/support",privacy.support)
 
     return router;
 };
