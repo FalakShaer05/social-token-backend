@@ -4,6 +4,7 @@ const users = require(`../controllers/Users`);
 const NFTToken = require(`../controllers/NFTToken`);
 const upload = require("../config/uploadConfig");
 const Common = require("../controllers/Common");
+const privacy = require("../controllers/PrivacyPolicy")
 
 module.exports = function RouterPublic(database, settings) {
     const db = database;
@@ -33,6 +34,7 @@ module.exports = function RouterPublic(database, settings) {
     router.get("/nft/shareview/:id", NFTToken.NftShareView);
     router.get("/send/shareview/:nft_id", NFTToken.NftSendShareView);
     //router.get("/sharedviews", NFTToken.NftGetSharedView);
+    router.get("/privacy",privacy.privacyPolicy)
 
     return router;
 };
