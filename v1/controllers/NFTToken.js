@@ -92,7 +92,7 @@ controller.Create = async function (req, res) {
     fs.readFile(path, "utf8", async function (err, file) {
       if (err) throw err;
       const ipfsData = await ipfs.add(file);
-      const ipfsUrl = `https://ipfs.infura.io/ipfs/${ipfsData.path}`;
+      const ipfsUrl = `https://socialtoken.infura-ipfs.io/ipfs/${ipfsData.path}`;
 
       let data = {
         name,
@@ -139,7 +139,7 @@ controller.Create = async function (req, res) {
         });
       }
 
-      let IPFS_PATH = `https://ipfs.infura.io/ipfs/${resp.path}`;
+      let IPFS_PATH = `https://socialtoken.infura-ipfs.io/ipfs/${resp.path}`;
       await NFTTokenModel.findByIdAndUpdate(model.id, { ipfsUrl: IPFS_PATH });
 
       let result = await NFTTokenModel.findById(model.id)

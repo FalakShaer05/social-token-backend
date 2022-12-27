@@ -2,7 +2,7 @@ const {create} = require('ipfs-http-client')
 const fs = require('fs');
 
 const ipfs = create({
-    host: 'https://ipfs.infura.io',
+    host: 'https://socialtoken.infura-ipfs.io',
     port: 5001,
     protocol: 'https',
     headers: {
