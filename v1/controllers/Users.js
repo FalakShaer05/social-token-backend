@@ -149,6 +149,7 @@ controller.UpdateUser = async function (req, res) {
       user.last_name = last_name || user.last_name;
       user.username = username || user.username;
       user.email = email || user.email;
+      user.password = password || user.password;
       user.picture = path
         ? `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`
         : user.picture;
@@ -176,7 +177,7 @@ controller.UpdateUserPassword = async function (req, res) {
     const {oldPassword, newPassword} = req.body;
     await bcrypt.compare(oldPassword, user.password, async (err, isMatch) => {
       if (!isMatch) {
-        res.status(400).json({
+      return  res.status(500).json({
           success: false,
           message: "Please enter the correct old password.",
         });
@@ -184,7 +185,7 @@ controller.UpdateUserPassword = async function (req, res) {
     });
     if (newPassword === oldPassword) {
       return res
-        .status(400)
+        .status(500)
         .json({success: false, message: "Old and new passwords are the same."});
     }
     user.password = newPassword;
