@@ -32,7 +32,8 @@ module.exports = function RouterPrivate(database, settings) {
   // Users
   router.route("/traders").get(User.GetTraders);
   router.route("/user").get(User.GetUserProfile);
-  router.route("/user/:id").put(User.UpdateUser);
+  router.route("/user/:id").patch(upload.single("img"),User.UpdateUser);
+  router.route("/user-update-password/:id").put(User.UpdateUserPassword);
 
   router.put("/activateuser/:id", User.ActivateUser);
   router.put("/deactivateuser/:id", User.DeactivateUser);
