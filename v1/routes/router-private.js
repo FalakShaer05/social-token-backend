@@ -2,6 +2,7 @@ const router = require(`express`).Router();
 const NFTToken = require(`../controllers/NFTToken`);
 const Collections = require(`../controllers/Collections`);
 const User = require("../controllers/Users");
+const SavedNFT = require("../controllers/SavedNFT");
 const Category = require("../controllers/Category");
 const authentication = require("../middleware/validateJWT");
 const upload = require("../config/uploadConfig");
@@ -34,6 +35,8 @@ module.exports = function RouterPrivate(database, settings) {
   router.route("/user").get(User.GetUserProfile);
   router.route("/user/:id").patch(upload.single("img"),User.UpdateUser);
   router.route("/user-update-password/:id").put(User.UpdateUserPassword);
+  router.route("/save-nft").post(SavedNFT.saveNFT);
+  router.route("/get-save-nft/:id").get(SavedNFT.getSavedNFT);
 
   router.put("/activateuser/:id", User.ActivateUser);
   router.put("/deactivateuser/:id", User.DeactivateUser);

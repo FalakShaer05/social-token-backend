@@ -1,5 +1,6 @@
 const moment = require(`moment`);
 const UsersModel = require(`./models/UsersModel`);
+const SavedNFTModel = require(`./models/SavedNFT`);
 const ForgetPasswordModel = require("./models/ForgottenPasswordModel");
 const CollectionsModel = require("./models/CollectionModel");
 const nfttokensmodel = require("./models/NFTTokenModel");
@@ -105,7 +106,8 @@ controller.GetUserProfile = function (req, res) {
   const query = UsersModel.findById(req.user._id);
   const promise = query.exec();
   promise
-    .then((user) => {
+  .then(async(user) => {
+    // const savedNft =await SavedNFTModel.find({userId: user._id}).exec();
       res.status(200).json({success: true, message: "Success", data: user});
     })
     .catch((ex) => {
@@ -136,7 +138,10 @@ controller.UpdateUser = async function (req, res) {
       if (user === null) {
         throw `User not found with that ID`;
       }
-      const {path} = req.file;
+      let path = user.picture; // Default to user's current picture path
+      if (req.file) {
+        path = `${settings.server.serverURL}/${req.file.path.replace(/\\/g,"/")}`;
+      }
       const {
         first_name,
         last_name,
@@ -150,9 +155,7 @@ controller.UpdateUser = async function (req, res) {
       user.username = username || user.username;
       user.email = email || user.email;
       user.password = password || user.password;
-      user.picture = path
-        ? `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`
-        : user.picture;
+      user.picture = path;
       return await user.save();
     })
     .then((user) => {
@@ -177,7 +180,7 @@ controller.UpdateUserPassword = async function (req, res) {
     const {oldPassword, newPassword} = req.body;
     await bcrypt.compare(oldPassword, user.password, async (err, isMatch) => {
       if (!isMatch) {
-      return  res.status(500).json({
+        return res.status(500).json({
           success: false,
           message: "Please enter the correct old password.",
         });

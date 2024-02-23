@@ -5,10 +5,11 @@ const UsersModel = require(`./controllers/models/UsersModel`);
 const AppsModel = require(`./controllers/models/AppsModel`);
 const jwt = require(`jsonwebtoken`);
 const config = require(`../server-settings.json`);
+const SavedNFTModel = require("./controllers/models/SavedNFT");
 
 module.exports = function Auth() {
   const verifyUserPassword = async (request, username, password, cb) => {
-    UsersModel.findOne({ username }, (err, user) => {
+    UsersModel.findOne({username}, (err, user) => {
       if (err) {
         cb(err);
       } else if (!user) {
@@ -22,12 +23,13 @@ module.exports = function Auth() {
             return cb(`Username not found or password did not match`);
           }
 
-          const token = jwt.sign({ sub: user._id }, config.server.secret, {
-            algorithm: "HS512"
+          const token = jwt.sign({sub: user._id}, config.server.secret, {
+            algorithm: "HS512",
           });
+          // const savedNft = await SavedNFTModel.find({userId: user._id}).exec();
           const data = {
             user: user,
-            token: token
+            token: token,
           };
 
           cb(null, data);
@@ -42,7 +44,7 @@ module.exports = function Auth() {
       {
         usernameField: `username`,
         passwordField: `password`,
-        passReqToCallback: true
+        passReqToCallback: true,
       },
       async (req, username, password, done) => {
         verifyUserPassword(req, username, password, (err, data) => {
@@ -110,7 +112,11 @@ module.exports = function Auth() {
   // });
 
   this.isUserAuthenticated = async function (req, res, next) {
-    return passport.authenticate(`user-basic`, { session: false })(req, res, next);
+    return passport.authenticate(`user-basic`, {session: false})(
+      req,
+      res,
+      next
+    );
   };
 
   return this;
