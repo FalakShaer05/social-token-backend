@@ -115,6 +115,20 @@ controller.GetUserProfile = function (req, res) {
     });
 };
 
+controller.GetUserWithWalletAddress = function (req, res) {
+  const {wallet_address} = req.body
+  const query = UsersModel.findOne({wallet_address});
+  const promise = query.exec();
+  promise
+  .then(async(user) => {
+    // const savedNft =await SavedNFTModel.find({userId: user._id}).exec();
+      res.status(200).json({success: true, message: "Success", data: user});
+    })
+    .catch((ex) => {
+      res.status(400).json({success: false, message: "error"});
+    });
+};
+
 controller.GetOtherUserProfile = async function (req, res) {
   try {
     const user = await UsersModel.findById(req.params.id)
@@ -147,14 +161,16 @@ controller.UpdateUser = async function (req, res) {
         last_name,
         username,
         password,
-        email,
+        wallet_address,
+        // email,
         phoneNo,
       } = req.body;
       user.first_name = first_name || user.first_name;
       user.last_name = last_name || user.last_name;
       user.username = username || user.username;
-      user.email = email || user.email;
-      user.password = password || user.password;
+      // user.email = email || user.email;
+      // user.password = password || user.password;
+      user.wallet_address = wallet_address || user.wallet_address;
       user.picture = path;
       return await user.save();
     })

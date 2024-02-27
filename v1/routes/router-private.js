@@ -33,6 +33,7 @@ module.exports = function RouterPrivate(database, settings) {
   // Users
   router.route("/traders").get(User.GetTraders);
   router.route("/user").get(User.GetUserProfile);
+  router.route("/user-with-wallet-address").put(User.GetUserWithWalletAddress);
   router.route("/user/:id").patch(upload.single("img"),User.UpdateUser);
   router.route("/user-update-password/:id").put(User.UpdateUserPassword);
   router.route("/save-nft").post(SavedNFT.saveNFT);

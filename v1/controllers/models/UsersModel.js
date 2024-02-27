@@ -7,7 +7,7 @@ const Users = Schema({
     first_name: {type: String, required: false},
     last_name: {type: String, required: false},
     email: {type: String, required: true, unique: true},
-    username: {type: String, required: true, unique: true},
+    username: {type: String, required: true, },
     password: {type: String, required: false},
     picture: {type: String, default: `admin-profile-pic.png`},
     is_deleted: {type: Boolean, default: false},
@@ -16,6 +16,7 @@ const Users = Schema({
     status: {type: String, default: `Active`},
     roles: {type: String, default: "trader"},
     phoneNo: {type: String, required: false},
+    wallet_address: {type: String, required: false},
     countryCode: {type: String, required: false},
     created: {type: Date, default: Date.now},
     updated: {type: Date, default: Date.now}
