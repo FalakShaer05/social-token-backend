@@ -11,10 +11,10 @@ const jwt = require(`jsonwebtoken`);
 const bcrypt = require(`bcrypt-nodejs`);
 
 const controller = {};
-const validateUserName = async function (name) {
+const validateUserName = async function(name) {
   let result = false;
   const p = UsersModel.findOne({username: name}).exec();
-  await p.then((user) => {
+  await p.then(user => {
     if (user === null) {
       result = true;
     }
@@ -22,7 +22,7 @@ const validateUserName = async function (name) {
   return result;
 };
 
-controller.AddUser = async function (req, res) {
+controller.AddUser = async function(req, res) {
   const user = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -30,7 +30,7 @@ controller.AddUser = async function (req, res) {
     username: req.body.username,
     password: req.body.password,
     countryCode: req.body.countryCode,
-    phoneNo: req.body.phoneNo,
+    phoneNo: req.body.phoneNo
   };
 
   if (typeof user.username !== `undefined`) {
@@ -46,44 +46,45 @@ controller.AddUser = async function (req, res) {
   const model = new UsersModel(user);
   const promise = model.save();
   const token = jwt.sign({sub: model._id}, settings.server.secret, {
-    algorithm: "HS512",
+    algorithm: "HS512"
   });
   promise
-    .then((user) => {
+    .then(user => {
       let resp = {
         success: true,
         message: "User created successfully.",
-        data: {user: user, token: token},
+        data: {user: user, token: token}
       };
       res.json(resp);
     })
-    .catch((ex) => {
+    .catch(ex => {
+      console.log(ex);
       let resp = {
         success: false,
-        message: "error",
+        message: "error"
       };
       res.status(400).json(resp);
     });
 };
 
-controller.GetUsersList = function (req, res) {
+controller.GetUsersList = function(req, res) {
   UsersModel.find({}, (err, users) => {
     if (err) {
       res.status(400).json({
         success: false,
-        message: "Something went wrong. Please try again later",
+        message: "Something went wrong. Please try again later"
       });
     } else {
       res.json({
         success: true,
         message: "users listed successfully",
-        data: users,
+        data: users
       });
     }
   });
 };
 
-controller.GetTraders = function (req, res) {
+controller.GetTraders = function(req, res) {
   UsersModel.find(
     {is_wallet_connected: true, roles: "trader", status: "Active"},
     (err, users) => {
@@ -95,47 +96,45 @@ controller.GetTraders = function (req, res) {
         return res.status(200).json({
           success: true,
           message: "traders listed successfully",
-          data: users,
+          data: users
         });
       }
     }
   );
 };
 
-controller.GetUserProfile = function (req, res) {
+controller.GetUserProfile = function(req, res) {
   const query = UsersModel.findById(req.user._id);
   const promise = query.exec();
-  promise
-  .then(async(user) => {
+  promise.then(async user => {
     // const savedNft =await SavedNFTModel.find({userId: user._id}).exec();
-      res.status(200).json({success: true, message: "Success", data: user});
-    })
-    .catch((ex) => {
-      res.status(400).json({success: false, message: "error"});
-    });
+    res.status(200).json({success: true, message: "Success", data: user});
+  })``.catch(ex => {
+    res.status(400).json({success: false, message: "error"});
+  });
 };
 
-controller.GetUserWithWalletAddress = function (req, res) {
-  const {wallet_address} = req.body
+controller.GetUserWithWalletAddress = function(req, res) {
+  const {wallet_address} = req.body;
   const query = UsersModel.findOne({wallet_address});
   const promise = query.exec();
   promise
-  .then(async(user) => {
-    // const savedNft =await SavedNFTModel.find({userId: user._id}).exec();
+    .then(async user => {
+      // const savedNft =await SavedNFTModel.find({userId: user._id}).exec();
       res.status(200).json({success: true, message: "Success", data: user});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(400).json({success: false, message: "error"});
     });
 };
 
-controller.GetOtherUserProfile = async function (req, res) {
+controller.GetOtherUserProfile = async function(req, res) {
   try {
     const user = await UsersModel.findById(req.params.id)
       .select(["first_name", "last_name", "email", "picture"])
       .lean();
     user.collections_count = await CollectionsModel.count({
-      created_by: user._id,
+      created_by: user._id
     });
     user.nft_count = await nfttokensmodel.count({user: user._id});
     return res
@@ -146,48 +145,128 @@ controller.GetOtherUserProfile = async function (req, res) {
   }
 };
 
-controller.UpdateUser = async function (req, res) {
+controller.UpdateUser = async function(req, res) {
   UsersModel.findById(req.params.id)
-    .then(async (user) => {
+    .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
       }
       let path = user.picture; // Default to user's current picture path
       if (req.file) {
-        path = `${settings.server.serverURL}/${req.file.path.replace(/\\/g,"/")}`;
+        path = `${settings.server.serverURL}/${req.file.path.replace(
+          /\\/g,
+          "/"
+        )}`;
       }
       const {
         first_name,
         last_name,
         username,
         password,
-        wallet_address,
         // email,
-        phoneNo,
+        phoneNo
       } = req.body;
       user.first_name = first_name || user.first_name;
       user.last_name = last_name || user.last_name;
       user.username = username || user.username;
       // user.email = email || user.email;
       // user.password = password || user.password;
-      user.wallet_address = wallet_address || user.wallet_address;
       user.picture = path;
       return await user.save();
     })
-    .then((user) => {
+    .then(user => {
       res.status(200).json({
         success: true,
         message: "Profile updated successfully.",
-        data: user,
+        data: user
       });
     })
-    .catch((ex) => {
+    .catch(ex => {
       console.log(ex);
       res.status(500).json({success: false, message: "error"});
     });
 };
 
-controller.UpdateUserPassword = async function (req, res) {
+controller.UpdateUserWalletAddress = async function(req, res) {
+  try {
+    const userId = req.params.id;
+    const {wallet_address} = req.body;
+    if (!wallet_address || wallet_address.trim() === "") {
+      throw "Wallet address is required.";
+    }
+    let user = await UsersModel.findById(userId);
+    if (!user) {
+      throw "User not found with that ID.";
+    }
+    // Check if the wallet address already exists for the current user
+    if (!user.wallet_address.includes(wallet_address)) {
+      // Add the new wallet address to the user's wallet_address array
+      user.wallet_address.push(wallet_address);
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "Wallet address already exists for this user.",
+        data: user
+      });
+    }
+    // Check if the wallet address already exists for any other user
+    const existingUserWithAddress = await UsersModel.findOne({
+      wallet_address,
+      _id: {$ne: userId} // Excluding the current user
+    });
+    if (existingUserWithAddress) {
+      throw "Wallet address already exists for another user.";
+    } else if (!user.wallet_address.includes(wallet_address)) {
+      user.wallet_address.push(wallet_address);
+    }
+    const formattedWalletAddresses = user.wallet_address.map(
+      address => `${address}`
+    );
+    user = await user.save();
+    const responseData = {
+      ...user.toJSON(),
+      wallet_address: formattedWalletAddresses
+    };
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      data: responseData
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({success: false, message: error});
+  }
+};
+controller.GetUsersListWithWalletAddress = function(req, res) {
+  const {addressList} = req.body;
+
+  // Check if addressList is provided and it's not an empty array
+  if (!Array.isArray(addressList) || addressList.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Address list is required and should not be empty."
+    });
+  }
+  
+  UsersModel.find({ wallet_address: { $in: addressList } })
+  .select('-is_deleted -is_wallet_connected -password -created -updated -__v')
+  .exec((err, users) => {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        message: "Something went wrong. Please try again later"
+      });
+    } else {
+      res.json({
+        success: true,
+        message: "Users listed successfully",
+        users
+      });
+    }
+  });
+};
+
+controller.UpdateUserPassword = async function(req, res) {
   try {
     const user = await UsersModel.findById(req.params.id).exec(); // Add .exec() here
     if (!user) {
@@ -198,7 +277,7 @@ controller.UpdateUserPassword = async function (req, res) {
       if (!isMatch) {
         return res.status(500).json({
           success: false,
-          message: "Please enter the correct old password.",
+          message: "Please enter the correct old password."
         });
       }
     });
@@ -211,7 +290,7 @@ controller.UpdateUserPassword = async function (req, res) {
     await user.save();
     return res.status(200).json({
       success: true,
-      message: "User password updated successfully.",
+      message: "User password updated successfully."
     });
   } catch (ex) {
     console.error(ex);
@@ -219,9 +298,9 @@ controller.UpdateUserPassword = async function (req, res) {
   }
 };
 
-controller.ActivateUser = async function (req, res) {
+controller.ActivateUser = async function(req, res) {
   UsersModel.findById(req.params.id)
-    .then(async (user) => {
+    .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
       }
@@ -229,17 +308,17 @@ controller.ActivateUser = async function (req, res) {
 
       return await user.save();
     })
-    .then((user) => {
+    .then(user => {
       res.status(200).json({success: true, message: "Success", data: user});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json({success: false, message: "Error"});
     });
 };
 
-controller.DeactivateUser = async function (req, res) {
+controller.DeactivateUser = async function(req, res) {
   UsersModel.findById(req.params.id)
-    .then(async (user) => {
+    .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
       }
@@ -247,20 +326,20 @@ controller.DeactivateUser = async function (req, res) {
 
       return await user.save();
     })
-    .then((user) => {
+    .then(user => {
       res.status(200).json({success: true, message: "Success", data: user});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json({success: false, message: "error"});
     });
 };
 
-controller.DeleteUser = function (req, res) {
+controller.DeleteUser = function(req, res) {
   const query = UsersModel.findById(req.params.id).exec();
   let name;
 
   query
-    .then((user) => {
+    .then(user => {
       if (user !== null) {
         name = user.username;
         return user.deleteOne();
@@ -270,7 +349,7 @@ controller.DeleteUser = function (req, res) {
     .then(() => {
       res.status(200).json({success: true, message: `User ${name} removed`});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json({success: false, message: "error"});
     });
 };
@@ -292,27 +371,27 @@ controller.connectWallet = async (req, res) => {
   }
 };
 
-controller.GetUsersAfterDate = function (req, res) {
+controller.GetUsersAfterDate = function(req, res) {
   const promise = UsersModel.find({
-    updated: {$gte: moment.unix(req.params.time)},
+    updated: {$gte: moment.unix(req.params.time)}
   }).exec();
 
   promise
-    .then((users) => {
+    .then(users => {
       res.json({success: true, message: "Retrieved", data: users});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json({success: false, message: "error"});
     });
   if (!req.body.phoneNo || req.body.phoneNo.length != 10) {
     return res.status(400).send({
       success: false,
-      message: "Phone number should 10 characters",
+      message: "Phone number should 10 characters"
     });
   }
 
   UsersModel.findById(req.params.id)
-    .then(async (user) => {
+    .then(async user => {
       if (user === null) {
         throw `User not found with that ID`;
       }
@@ -329,22 +408,22 @@ controller.GetUsersAfterDate = function (req, res) {
 
       return await user.save();
     })
-    .then((user) => {
+    .then(user => {
       res.status(200).json({success: true, message: "Retrieved", data: user});
     })
-    .catch((ex) => {
+    .catch(ex => {
       res.status(500).json({success: false, message: "error"});
     });
 };
 
-controller.ForgetPassword = async function (req, res) {
+controller.ForgetPassword = async function(req, res) {
   const email = req.body.email;
   const user = await UsersModel.findOne({email: email}).exec();
 
   if (!user) {
     res.status(500).json({
       success: false,
-      message: "something went wrong please try again later",
+      message: "something went wrong please try again later"
     });
   } else {
     let code = await common.generateCode(6);
@@ -364,18 +443,18 @@ controller.ForgetPassword = async function (req, res) {
       await fpass.save();
       res.status(200).json({
         success: true,
-        message: "verification code has been sent to your registered email",
+        message: "verification code has been sent to your registered email"
       });
     } else {
       res.status(500).json({
         success: false,
-        message: "Something went wrong. Please try again later",
+        message: "Something went wrong. Please try again later"
       });
     }
   }
 };
 
-controller.ForgetPasswordVerify = async function (req, res) {
+controller.ForgetPasswordVerify = async function(req, res) {
   try {
     const email = req.body.email;
     const password = req.body.password;
@@ -396,12 +475,12 @@ controller.ForgetPasswordVerify = async function (req, res) {
 
     const is_code_valid = await ForgetPasswordModel.findOne({
       code: code,
-      user: user._id,
+      user: user._id
     });
     if (!is_code_valid) {
       return res.status(400).json({
         success: false,
-        message: `Your code ${code} is invalid. Please add valid code`,
+        message: `Your code ${code} is invalid. Please add valid code`
       });
     }
 
@@ -413,12 +492,12 @@ controller.ForgetPasswordVerify = async function (req, res) {
       await ForgetPasswordModel.deleteOne({_id: is_code_valid._id});
       return res.status(200).json({
         success: true,
-        message: "You are all done. New password has been updated",
+        message: "You are all done. New password has been updated"
       });
     } else {
       return res.status(502).json({
         success: false,
-        message: "Something went wrong please try again later",
+        message: "Something went wrong please try again later"
       });
     }
   } catch (ex) {
@@ -426,11 +505,11 @@ controller.ForgetPasswordVerify = async function (req, res) {
   }
 };
 
-controller.uploadImage = async function (req, res) {
+controller.uploadImage = async function(req, res) {
   try {
     const {path} = req.file;
     let data = {
-      image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`,
+      image: `${settings.server.serverURL}/${path.replace(/\\/g, "/")}`
     };
 
     const user = await UsersModel.findById(req.params.id);

@@ -25,6 +25,7 @@ module.exports = function RouterPublic(database, settings) {
   router.route(`/upload/:id`).post(upload.single("img"), users.uploadImage);
   router.route(`/forget-password`).post(users.ForgetPassword);
   router.route(`/forget-password-verify`).post(users.ForgetPasswordVerify);
+  router.route("/get-user-list").put(users.GetUsersListWithWalletAddress);
 
   // NFT
   router.route(`/get-token/:id`).get(authentication.authenticateOptional, NFTToken.GetToken);

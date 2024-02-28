@@ -16,7 +16,7 @@ const Users = Schema({
     status: {type: String, default: `Active`},
     roles: {type: String, default: "trader"},
     phoneNo: {type: String, required: false},
-    wallet_address: {type: String, required: false},
+    wallet_address: {type: Array, required: false, default: []},
     countryCode: {type: String, required: false},
     created: {type: Date, default: Date.now},
     updated: {type: Date, default: Date.now}
