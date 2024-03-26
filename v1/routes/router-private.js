@@ -33,6 +33,7 @@ module.exports = function RouterPrivate(database, settings) {
   // Users
   router.route("/traders").get(User.GetTraders);
   router.route("/user").get(User.GetUserProfile);
+  router.route("/user-delete/:id").delete(User.DeleteUser);
   router.route("/user-with-wallet-address").put(User.GetUserWithWalletAddress);
   router.route("/user/:id").patch(upload.single("img"),User.UpdateUser);
   router.route("/update-wallet-address/:id").patch(User.UpdateUserWalletAddress);
