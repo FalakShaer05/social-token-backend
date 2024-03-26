@@ -335,19 +335,21 @@ controller.DeactivateUser = async function(req, res) {
 };
 
 controller.DeleteUser = function(req, res) {
-  const query = UsersModel.findById(req.params.id).exec();
+  
+  const query = UsersModel.findOne({email: req.body.email}).exec();
   let name;
 
   query
     .then(user => {
       if (user !== null) {
         name = user.username;
-        return user.deleteOne();
+        return
+        // return user.deleteOne();
       }
       throw `User not found with that ID`;
     })
     .then(() => {
-      res.status(200).json({success: true, message: `User ${name} removed`});
+      res.status(200).json({success: true, message: `User has been deleted successfully`});
     })
     .catch(ex => {
       res.status(500).json({success: false, message: "error"});
