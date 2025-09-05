@@ -5,6 +5,7 @@ const NFTToken = require(`../controllers/NFTToken`);
 const upload = require("../config/uploadConfig");
 const Category = require("../controllers/Category");
 const Collections = require("../controllers/Collections");
+const Support = require("../controllers/Support");
 const authentication = require("../middleware/validateJWT");
 
 module.exports = function RouterPublic(database, settings) {
@@ -39,6 +40,10 @@ module.exports = function RouterPublic(database, settings) {
   router.get("/collections", Collections.GetCollections);
   router.route("/tokens").get(authentication.authenticateOptional, NFTToken.GetAllNFTTokens);
   router.get("/history/:id", NFTToken.GetNFTHistory);
+
+  // Support routes
+  router.get("/support", Support.getSupportForm);
+  router.post("/support", Support.createSupportTicket);
 
   return router;
 };

@@ -4,6 +4,7 @@ const Collections = require(`../controllers/Collections`);
 const User = require("../controllers/Users");
 const SavedNFT = require("../controllers/SavedNFT");
 const Category = require("../controllers/Category");
+const Support = require("../controllers/Support");
 const authentication = require("../middleware/validateJWT");
 const upload = require("../config/uploadConfig");
 const uploaderSettings = upload.fields([
@@ -46,6 +47,11 @@ module.exports = function RouterPrivate(database, settings) {
   //Category
   router.route("/category").post(Category.createCategory);
   router.route("/category/:id").put(Category.updateCollection).delete(Category.DeleteCategory);
+
+  // Support management (admin routes)
+  router.get("/support-tickets", Support.getAllSupportTickets);
+  router.get("/support-tickets/:id", Support.getSupportTicket);
+  router.put("/support-tickets/:id", Support.updateSupportTicket);
 
   return router;
 };
